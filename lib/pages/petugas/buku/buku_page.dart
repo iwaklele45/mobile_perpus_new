@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobile_perpus/pages/petugas/edit_buku.dart';
-import 'package:mobile_perpus/pages/petugas/add_book.dart';
+import 'package:mobile_perpus/pages/petugas/buku/edit_buku.dart';
+import 'package:mobile_perpus/pages/petugas/buku/tambah_buku_page.dart';
 
 class PageBuku extends StatefulWidget {
   const PageBuku({super.key});
@@ -182,17 +182,132 @@ class _PageBukuState extends State<PageBuku> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text('Judul: ${buku['judul']}'),
-                Text('Stok: ${buku['stokBuku']}'),
-                Text('Kategori: ${buku['genre']}'),
-                Text('Pengarang: ${buku['pengarang']}'),
-                Text('Penerbit: ${buku['penerbit']}'),
-                Text('Tahun Terbit: ${buku['tahun']}'),
-                Text('Rak: ${buku['rak']}'),
-                SizedBox(
+                Text(
+                  'Judul Buku   :',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '${buku['judul']}',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'Kategori   : ',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${buku['kategori']}',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'Penulis   : ',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${buku['penulis']}',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'Penerbit   : ',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${buku['penerbit']}',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'Tahun Terbit   : ',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${buku['tahun']}',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'Stok   : ',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${buku['stokBuku']}',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Text('Stok: ${buku['stokBuku']}'),
+                // Text('Kategori: ${buku['kategori']}'),
+                // Text('Penulis: ${buku['penulis']}'),
+                // Text('Penerbit: ${buku['penerbit']}'),
+                // Text('Tahun Terbit: ${buku['tahun']}'),
+                const SizedBox(
                   height: 10,
                 ),
-                Text('Sinopsis: ${buku['sinopsis']}'),
+                Text(
+                  'Sinopsis   :',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '${buku['sinopsis']}',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                  ),
+                ),
                 const SizedBox(height: 20),
               ],
             ),

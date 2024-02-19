@@ -42,7 +42,7 @@ class _CetakBukuState extends State<CetakBuku> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Pengarang: ${peminjaman['pengarang']}'),
+                      Text('Penulis: ${peminjaman['penulis']}'),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -166,11 +166,6 @@ class _CetakBukuState extends State<CetakBuku> {
                             style:
                                 pw.TextStyle(fontWeight: pw.FontWeight.bold))),
                     pw.Padding(
-                        padding: const pw.EdgeInsets.only(left: 3),
-                        child: pw.Text('Rak',
-                            style:
-                                pw.TextStyle(fontWeight: pw.FontWeight.bold))),
-                    pw.Padding(
                         padding: const pw.EdgeInsets.only(left: 10),
                         child: pw.Text('Judul',
                             style:
@@ -182,7 +177,7 @@ class _CetakBukuState extends State<CetakBuku> {
                                 pw.TextStyle(fontWeight: pw.FontWeight.bold))),
                     pw.Padding(
                         padding: const pw.EdgeInsets.only(left: 10),
-                        child: pw.Text('Pengarang',
+                        child: pw.Text('Penulis',
                             style:
                                 pw.TextStyle(fontWeight: pw.FontWeight.bold))),
                     pw.Padding(
@@ -207,9 +202,6 @@ class _CetakBukuState extends State<CetakBuku> {
                     children: [
                       pw.Center(child: pw.Text('${index + 1}')),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.only(left: 10),
-                          child: pw.Text('${data[index]['rak']}')),
-                      pw.Padding(
                           padding:
                               const pw.EdgeInsets.only(left: 10, right: 10),
                           child: pw.Text('${data[index]['judul']}')),
@@ -218,7 +210,7 @@ class _CetakBukuState extends State<CetakBuku> {
                           child: pw.Text('${data[index]['penerbit']}')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.only(left: 10),
-                          child: pw.Text('${data[index]['pengarang']}')),
+                          child: pw.Text('${data[index]['penulis']}')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.only(left: 10),
                           child: pw.Text('${data[index]['genre']}')),

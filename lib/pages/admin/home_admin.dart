@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mobile_perpus/pages/petugas/mydrawer.dart';
+import 'package:mobile_perpus/pages/admin/drawer_admin.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -44,7 +44,10 @@ class _AdminPageState extends State<AdminPage> {
       drawer: const DrawerAdmin(),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('users').snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .where('levelUser', isEqualTo: 'Peminjam')
+              .snapshots(),
           builder: (context, userSnapshot) {
             if (userSnapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -133,7 +136,7 @@ class _AdminPageState extends State<AdminPage> {
                                   child: CircularProgressIndicator());
                             } else {
                               return _buildStatCard(
-                                  'Total Denda Semua Pengguna',
+                                  'Total Denda Semua Peminjam',
                                   Icons.attach_money_outlined,
                                   snapshot.data.toString());
                             }

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_perpus/pages/petugas/admin_page.dart';
-import 'package:mobile_perpus/pages/petugas/kepala_laporan.dart';
+import 'package:mobile_perpus/pages/admin/home_admin.dart';
+import 'package:mobile_perpus/pages/petugas/home_petugas.dart';
 import 'package:mobile_perpus/pages/loginPage/login_page.dart';
 import 'package:mobile_perpus/pages/peminjam/home_page.dart';
 
@@ -39,15 +39,15 @@ class CheckLogin extends StatelessWidget {
                     final Map<String, dynamic> userData =
                         userSnapshot.data!.docs.first.data()
                             as Map<String, dynamic>;
-                    final String userLevel = userData['level'];
+                    final String userLevel = userData['levelUser'];
 
                     switch (userLevel) {
-                      case 'pelanggan':
+                      case 'Pelanggan':
                         return const HomePage();
-                      case 'admin':
+                      case 'Admin':
                         return const AdminPage();
-                      case 'kepala':
-                        return const LaporanPage();
+                      case 'Petugas':
+                        return const HomePetugas();
                       default:
                         return const LoginPage();
                     }

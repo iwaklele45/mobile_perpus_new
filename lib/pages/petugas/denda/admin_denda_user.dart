@@ -78,7 +78,7 @@ class _PageDendaState extends State<PageDenda> {
                     List<DocumentSnapshot> filteredList =
                         userDendaList.where((document) {
                       var userData = document.data() as Map<String, dynamic>;
-                      var namaUser = userData['full name'];
+                      var namaUser = userData['namaLengkap'];
                       var denda = userData['denda'];
 
                       var namaUserLower = namaUser.toString().toLowerCase();
@@ -95,7 +95,7 @@ class _PageDendaState extends State<PageDenda> {
                         itemBuilder: (context, index) {
                           var userData = filteredList[index].data()
                               as Map<String, dynamic>;
-                          var namaUser = userData['full name'];
+                          var namaUser = userData['namaLengkap'];
                           var denda = userData['denda'];
 
                           return GestureDetector(
@@ -191,7 +191,7 @@ class _PageDendaState extends State<PageDenda> {
           QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
               .instance
               .collection('users')
-              .where('full name', isEqualTo: namaUser)
+              .where('namaLengkap', isEqualTo: namaUser)
               .get();
 
           if (snapshot.docs.isNotEmpty) {

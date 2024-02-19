@@ -1,21 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_perpus/pages/petugas/admin_book.dart';
-import 'package:mobile_perpus/pages/petugas/admin_denda_user.dart';
-import 'package:mobile_perpus/pages/petugas/admin_genre.dart';
-import 'package:mobile_perpus/pages/petugas/admin_peminjaman.dart';
-import 'package:mobile_perpus/pages/petugas/admin_rak_buku.dart';
-import 'package:mobile_perpus/pages/petugas/admin_user.dart';
-import 'package:mobile_perpus/pages/petugas/admin_pengembalian.dart';
+import 'package:mobile_perpus/pages/laporan/laporan_page.dart';
+import 'package:mobile_perpus/pages/petugas/denda/admin_denda_user.dart';
+import 'package:mobile_perpus/pages/petugas/buku/buku_page.dart';
+import 'package:mobile_perpus/pages/petugas/kategori/kategori_page.dart';
+import 'package:mobile_perpus/pages/petugas/peminjaman/admin_peminjaman.dart';
+import 'package:mobile_perpus/pages/petugas/peminjam/peminjam_page.dart';
+import 'package:mobile_perpus/pages/petugas/pengembalian/admin_pengembalian.dart';
+import 'package:mobile_perpus/pages/admin/petugas/petugas_page.dart';
 
-class DrawerAdmin extends StatefulWidget {
-  const DrawerAdmin({super.key});
+class DrawerPetugas extends StatefulWidget {
+  const DrawerPetugas({super.key});
 
   @override
-  State<DrawerAdmin> createState() => _DrawerAdminState();
+  State<DrawerPetugas> createState() => _DrawerPetugasState();
 }
 
-class _DrawerAdminState extends State<DrawerAdmin> {
+class _DrawerPetugasState extends State<DrawerPetugas> {
   final user = FirebaseAuth.instance.currentUser!;
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class _DrawerAdminState extends State<DrawerAdmin> {
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: const Text('Admin'),
+            accountName: const Text('Petugas'),
             accountEmail: Text(user.email!),
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -46,27 +47,17 @@ class _DrawerAdminState extends State<DrawerAdmin> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const PagePelanggan()));
+                  builder: (context) => const PagePeminjam()));
             },
             child: const ListTile(
               leading: Icon(Icons.person),
-              title: Text('Pelanggan'),
+              title: Text('Peminjam'),
             ),
           ),
           GestureDetector(
             onTap: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const PageRakBuku()));
-            },
-            child: const ListTile(
-              leading: Icon(Icons.shelves),
-              title: Text('Rak'),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const PageGenre()));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const PageKategori()));
             },
             child: const ListTile(
               leading: Icon(Icons.favorite),
@@ -109,6 +100,14 @@ class _DrawerAdminState extends State<DrawerAdmin> {
             child: const ListTile(
               leading: Icon(Icons.monetization_on),
               title: Text('Denda'),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const LaporanPage())),
+            child: const ListTile(
+              leading: Icon(Icons.notes_sharp),
+              title: Text('Laporan'),
             ),
           ),
           ListTile(

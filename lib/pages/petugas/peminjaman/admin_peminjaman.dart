@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobile_perpus/pages/petugas/user_pengembalian_buku.dart';
+import 'package:mobile_perpus/pages/petugas/peminjaman/user_pinjam_buku.dart';
 
-class PagePengembalian extends StatefulWidget {
-  const PagePengembalian({Key? key}) : super(key: key);
+class PagePeminjaman extends StatefulWidget {
+  const PagePeminjaman({Key? key}) : super(key: key);
 
   @override
-  State<PagePengembalian> createState() => _PagePengembalianState();
+  State<PagePeminjaman> createState() => _PagePeminjamanState();
 }
 
-class _PagePengembalianState extends State<PagePengembalian> {
+class _PagePeminjamanState extends State<PagePeminjaman> {
   late List<DocumentSnapshot> peminjamanList;
-  int _selectedItemIndex = -1;
+  late int _selectedItemIndex;
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Pengembalian Buku')),
+      appBar: AppBar(title: const Text('Peminjaman Buku')),
       body: Column(
         children: [
-          SizedBox(
-            height: 10,
-          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Container(
@@ -55,13 +62,12 @@ class _PagePengembalianState extends State<PagePengembalian> {
               ),
             ),
           ),
-          SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('peminjaman')
+                  .where('status peminjaman', isEqualTo: 'belum terkonfirmasi')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -81,14 +87,11 @@ class _PagePengembalianState extends State<PagePengembalian> {
                     groupedPeminjaman[namaPeminjam]!.add(peminjaman);
                   }
 
-                  // Filter the list based on the search query and confirmed status
+                  // Filter the list based on the search query
                   List<MapEntry<String, List<DocumentSnapshot>>> filteredList =
                       groupedPeminjaman.entries
                           .where((entry) =>
-                              entry.key.contains(_searchController.text) &&
-                              entry.value.any((peminjaman) =>
-                                  peminjaman['status peminjaman'] ==
-                                  'terkonfirmasi'))
+                              entry.key.contains(_searchController.text))
                           .toList();
 
                   if (filteredList.isNotEmpty) {
@@ -97,6 +100,7 @@ class _PagePengembalianState extends State<PagePengembalian> {
                       itemBuilder: (context, index) {
                         var entry = filteredList[index];
                         var namaPeminjam = entry.key;
+                        var borrowedBooks = entry.value;
 
                         return GestureDetector(
                           onTap: () {
@@ -106,8 +110,8 @@ class _PagePengembalianState extends State<PagePengembalian> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => UserPengembalianBuku(
-                                  userId: entry.value[0]['id user'],
+                                builder: (context) => UserPinjamBuku(
+                                  userId: borrowedBooks[0]['id user'],
                                 ),
                               ),
                             );
@@ -121,7 +125,7 @@ class _PagePengembalianState extends State<PagePengembalian> {
                   } else {
                     return const Center(
                       child: Text(
-                        'Tidak ada peminjaman buku terkonfirmasi',
+                        'Tidak ada peminjaman buku',
                         style: TextStyle(
                           fontSize: 15,
                         ),

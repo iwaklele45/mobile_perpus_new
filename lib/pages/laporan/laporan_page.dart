@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobile_perpus/pages/petugas/cetak_laporan_buku.dart';
-import 'package:mobile_perpus/pages/petugas/cetak_laporan_denda.dart';
-import 'package:mobile_perpus/pages/petugas/cetak_laporan_pelanggan.dart';
-import 'package:mobile_perpus/pages/petugas/cetak_laporan_peminjaman.dart';
-import 'package:mobile_perpus/pages/petugas/cetak_laporan_pengembalian.dart';
+import 'package:mobile_perpus/pages/laporan/cetak_laporan_buku.dart';
+import 'package:mobile_perpus/pages/laporan/cetak_laporan_denda.dart';
+import 'package:mobile_perpus/pages/laporan/cetak_laporan_peminjam.dart';
+import 'package:mobile_perpus/pages/laporan/cetak_laporan_peminjaman.dart';
+import 'package:mobile_perpus/pages/laporan/cetak_laporan_pengembalian.dart';
 // import 'package:mobile_perpus/pages/user/login_page.dart';
 
 class LaporanPage extends StatefulWidget {
@@ -160,9 +160,9 @@ class _LaporanPageState extends State<LaporanPage> {
                     child: TextButton(
                       onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (context) => const CetakPelanggan())),
+                              builder: (context) => const CetakPeminjam())),
                       child: Text(
-                        'Print Laporan Pelanggan',
+                        'Print Laporan Peminjam',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           color: Colors.white,

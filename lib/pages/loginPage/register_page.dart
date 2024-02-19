@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/assets/assets.gen.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
+import 'package:mobile_perpus/core/constrant/text_field.dart';
 import 'package:mobile_perpus/pages/loginPage/verifycation_email.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -15,37 +18,32 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _fullNameController = TextEditingController();
   final _addressController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _emailControler = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final _usernameController = TextEditingController();
   final textFieldFocusNode = FocusNode();
   final otpMail = EmailOTP();
-  bool _passworObsecure = false;
-  bool _confirmPasswordObsecure = false;
   bool _isLoading = false;
+  bool _obscureText = false;
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _fullNameController.dispose();
     _addressController.dispose();
-    _phoneController.dispose();
     _emailControler.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
-    _passworObsecure = true;
-    _confirmPasswordObsecure = true;
     super.initState();
+    _obscureText = true;
   }
 
   void _toogleShowPassword() {
     setState(() {
-      _passworObsecure = !_passworObsecure;
       if (textFieldFocusNode.hasPrimaryFocus) return;
       textFieldFocusNode.canRequestFocus = false;
     });
@@ -53,7 +51,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _toogleShowConfirmPassword() {
     setState(() {
-      _confirmPasswordObsecure = !_confirmPasswordObsecure;
       if (textFieldFocusNode.hasPrimaryFocus) return;
       textFieldFocusNode.canRequestFocus = false;
     });
@@ -66,14 +63,14 @@ class _RegisterPageState extends State<RegisterPage> {
     String uidUser,
   ) async {
     await FirebaseFirestore.instance.collection('users').add({
-      'full name': fullName,
-      'address': address,
-      'phone': phone,
-      'uidUser': uidUser,
-      'level': 'pelanggan',
-      'denda': 0,
+      'alamat': fullName,
+      'denda': address,
       'email': _emailControler.text,
-      'status email': 'false',
+      'levelUser': uidUser,
+      'levelUser': 'Peminjam',
+      'namaLengkap': '',
+      'username': '',
+      'statusEmail': false,
     });
   }
 
@@ -84,16 +81,11 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       if (_fullNameController.text.isEmpty ||
           _addressController.text.isEmpty ||
-          _phoneController.text.isEmpty ||
           _emailControler.text.isEmpty ||
-          _passwordController.text.isEmpty ||
-          _confirmPasswordController.text.isEmpty) {
+          _passwordController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Kolom harus di isi semua!')));
-      } else if (!passwordConfirmed()) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password tidak sama!')));
-      } else if (passwordConfirmed()) {
+      } else {
         final UserCredential userCredential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailControler.text,
@@ -103,13 +95,13 @@ class _RegisterPageState extends State<RegisterPage> {
             .collection('users')
             .doc(userCredential.user!.uid)
             .set({
-          'full name': _fullNameController.text,
-          'address': _addressController.text,
-          'phone': _phoneController.text,
-          'level': 'pelanggan',
+          'alamat': _addressController.text,
           'denda': 0,
           'email': _emailControler.text,
-          'status email': false,
+          'levelUser': 'Pelanggan',
+          'namaLengkap': _fullNameController.text,
+          'username': _usernameController.text,
+          'statusEmail': false,
         });
         await FirebaseAuth.instance.signOut();
 
@@ -118,13 +110,12 @@ class _RegisterPageState extends State<RegisterPage> {
         Future.delayed(const Duration(seconds: 10), () {
           _fullNameController.clear();
           _addressController.clear();
-          _phoneController.clear();
           _emailControler.clear();
           _passwordController.clear();
-          _confirmPasswordController.clear();
+          _usernameController.clear();
         });
         otpMail.setConfig(
-          appEmail: 'moper11223@gmail.com',
+          appEmail: 'mobilePerpus123@gmail.com',
           appName: 'Email OTP',
           userEmail: _emailControler.text,
           otpLength: 5,
@@ -170,343 +161,107 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  bool passwordConfirmed() {
-    if (_passwordController.text.trim() ==
-        _confirmPasswordController.text.trim()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
         body: SingleChildScrollView(
-      child: Center(
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 50,
-            ),
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Color.fromARGB(255, 60, 57, 57),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Icon(
-                          Icons.arrow_back_ios_new,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              Text(
+                'Register Account',
+                style: GoogleFonts.inter(
+                  color: AppColors.mainColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 22,
                 ),
-              ],
-            ),
-            Text(
-              'Register',
-              style: GoogleFonts.poppins(
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
               ),
-            ),
-            const SizedBox(
-              height: 5.0,
-            ),
-            Text(
-              'Create your new account',
-              style: GoogleFonts.poppins(
-                fontSize: 15,
+              const SizedBox(
+                height: 5,
               ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
+              Text(
+                'Hello, please complete the data below to register a new account',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  color: AppColors.mainColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              TextFieldSection(
+                controller: _usernameController,
+                label: 'Username',
+                icon: Assets.icons.icRoundAlternateEmail.svg(height: 22),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextFieldSection(
+                controller: _fullNameController,
+                label: 'Full Name',
+                icon: Assets.icons.icRoundAlternateEmail.svg(height: 22),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextFieldSection(
+                controller: _emailControler,
+                label: 'Email',
+                icon: Assets.icons.icRoundAlternateEmail1.svg(height: 22),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextFieldSection(
+                controller: _addressController,
+                label: 'Address',
+                icon: Assets.icons.icRoundAlternateEmail2.svg(height: 22),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextFieldSection(
+                controller: _passwordController,
+                label: 'Password',
+                icon: Assets.icons.icRoundAlternateEmail3.svg(height: 22),
+                obscureText: _obscureText,
+                suffixIcon: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                  child: _obscureText
+                      ? const Icon(Icons.visibility)
+                      : const Icon(Icons.visibility_off_rounded),
+                ),
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              SizedBox(
+                height: screenHeight - 670,
+              ),
+              Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                  color: Colors.grey[200],
+                  color: AppColors.mainColor,
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    controller: _fullNameController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.name,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Nama',
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      icon: const Icon(
-                        Icons.person_2,
-                        color: Color.fromARGB(255, 60, 57, 57),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                  color: Colors.grey[200],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    controller: _addressController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.streetAddress,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Address',
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      icon: const Icon(
-                        Icons.location_on,
-                        color: Color.fromARGB(255, 60, 57, 57),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                  color: Colors.grey[200],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    controller: _phoneController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Phone Number',
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      icon: const Icon(
-                        Icons.phone,
-                        color: Color.fromARGB(255, 60, 57, 57),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                  color: Colors.grey[200],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    controller: _emailControler,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Email',
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      icon: const Icon(
-                        Icons.email,
-                        color: Color.fromARGB(255, 60, 57, 57),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                  color: Colors.grey[200],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    obscureText: _passworObsecure,
-                    controller: _passwordController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.visiblePassword,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      hintText: 'Password',
-                      icon: const Icon(
-                        Icons.lock_rounded,
-                        color: Color.fromARGB(255, 60, 57, 57),
-                      ),
-                      suffixIcon: Padding(
-                        padding: const EdgeInsets.only(right: 4.0),
-                        child: GestureDetector(
-                          onTap: _toogleShowPassword,
-                          child: Icon(
-                            _passworObsecure
-                                ? Icons.visibility_rounded
-                                : Icons.visibility_off_rounded,
-                            color: Color.fromARGB(255, 60, 57, 57),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                  color: Colors.grey[200],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    obscureText: _confirmPasswordObsecure,
-                    controller: _confirmPasswordController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.visiblePassword,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      hintText: 'Confirm Password',
-                      icon: const Icon(
-                        Icons.key,
-                        color: Color.fromARGB(255, 60, 57, 57),
-                      ),
-                      suffixIcon: Padding(
-                        padding: const EdgeInsets.only(right: 4.0),
-                        child: GestureDetector(
-                          onTap: _toogleShowConfirmPassword,
-                          child: Icon(
-                            _confirmPasswordObsecure
-                                ? Icons.visibility_rounded
-                                : Icons.visibility_off_rounded,
-                            color: Color.fromARGB(255, 60, 57, 57),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'By signing you agree to our ',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Text('Team of use')
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'and ',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Text('privacy notice'),
-              ],
-            ),
-            SizedBox(
-              height: screenHeight - 650,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: SizedBox(
                 width: double.infinity,
-                height: 40.0,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: const MaterialStatePropertyAll<Color>(
-                      Color.fromARGB(255, 60, 57, 57),
-                    ),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
+                height: 50.0,
+                child: MaterialButton(
                   onPressed: _isLoading ? null : signUp,
                   child: _isLoading
                       ? const CircularProgressIndicator(
@@ -514,43 +269,77 @@ class _RegisterPageState extends State<RegisterPage> {
                           color: Colors.white,
                         )
                       : Text(
-                          'Sign Up',
-                          style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500),
+                          'Register',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: AppColors.whiteColor,
+                          ),
                         ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Have an account? ',
-                  style: GoogleFonts.poppins(),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    'Login',
-                    style: GoogleFonts.poppins(
-                      decoration: TextDecoration.underline,
-                      fontWeight: FontWeight.w500,
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 1,
+                    width: 155,
+                    color: Colors.black,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      'OR',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.mainColor,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-          ],
+                  Container(
+                    height: 1,
+                    width: 155,
+                    color: Colors.black,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Or you have an account?',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      _obscureText = true;
+                    },
+                    child: Text(
+                      'Login',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+            ],
+          ),
         ),
       ),
     ));

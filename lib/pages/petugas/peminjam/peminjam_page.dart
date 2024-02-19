@@ -5,14 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PagePelanggan extends StatefulWidget {
-  const PagePelanggan({Key? key}) : super(key: key);
+class PagePeminjam extends StatefulWidget {
+  const PagePeminjam({Key? key}) : super(key: key);
 
   @override
-  State<PagePelanggan> createState() => _PagePelangganState();
+  State<PagePeminjam> createState() => _PagePeminjamState();
 }
 
-class _PagePelangganState extends State<PagePelanggan> {
+class _PagePeminjamState extends State<PagePeminjam> {
   final TextEditingController _searchController = TextEditingController();
   late StreamController<List<DocumentSnapshot>> _searchControllerStream;
   List<DocumentSnapshot> _userList = [];
@@ -34,7 +34,7 @@ class _PagePelangganState extends State<PagePelanggan> {
   List<DocumentSnapshot> _filterUsers(String searchText) {
     return _userList.where((userDoc) {
       var user = userDoc.data() as Map<String, dynamic>;
-      var fullName = user['full name'].toLowerCase();
+      var fullName = user['username'].toLowerCase();
       return fullName.contains(searchText);
     }).toList();
   }
@@ -42,7 +42,7 @@ class _PagePelangganState extends State<PagePelanggan> {
   void _initializeUserListStream() {
     FirebaseFirestore.instance
         .collection('users')
-        .where('level', isEqualTo: 'pelanggan') // Filter berdasarkan level
+        .where('levelUser', isEqualTo: 'Peminjam') // Filter berdasarkan level
         .snapshots()
         .listen((snapshot) {
       _userList = snapshot.docs;
@@ -53,7 +53,7 @@ class _PagePelangganState extends State<PagePelanggan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pelanggan')),
+      appBar: AppBar(title: const Text('Peminjam')),
       body: Column(
         children: [
           const SizedBox(
@@ -107,17 +107,24 @@ class _PagePelangganState extends State<PagePelanggan> {
                       itemBuilder: (context, index) {
                         var user = users[index].data() as Map<String, dynamic>;
                         var email = user['email'];
-                        var address = user['address'];
-                        var phone = user['phone'];
-                        var statusEmail = user['status email'];
-                        var denda = user['denda'];
-                        var fullName = user['full name'];
+                        var address = user['alamat'];
+                        var statusEmail = user['statusEmail'];
+                        var fine = user['denda'];
+                        var fullName = user['namaLengkap'];
+                        var username = user['username'];
 
                         return ListTile(
-                          title: Text(fullName),
+                          title: Text('${index + 1} . $username'),
                           onTap: () {
-                            _showUserDetails(context, email, address, phone,
-                                statusEmail, denda);
+                            _showUserDetails(
+                              context,
+                              fullName,
+                              username,
+                              email,
+                              address,
+                              statusEmail,
+                              fine,
+                            );
                           },
                         );
                       },
@@ -125,7 +132,7 @@ class _PagePelangganState extends State<PagePelanggan> {
                   } else {
                     return const Center(
                       child: Text(
-                        'Tidak Ada User',
+                        'Tidak Ada Pelanggan',
                         style: TextStyle(
                           fontSize: 15,
                         ),
@@ -143,29 +150,125 @@ class _PagePelangganState extends State<PagePelanggan> {
 
   void _showUserDetails(
     BuildContext context,
+    String fullName,
+    String username,
     String email,
     String address,
-    String phone,
     bool statusEmail,
-    int denda,
+    int fine,
   ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Detail Pelanggan'),
-          content: Container(
-            height: 200,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Email: $email'),
-                Text('Alamat: $address'),
-                Text('Nomor: $phone'),
-                Text(
-                    'Status Email: ${statusEmail ? 'Verified' : 'Not Verified'}'),
-                Text('Denda: $denda'),
-              ],
+          title: const Text('Detail Peminjam'),
+          content: SizedBox(
+            height: 320,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Full Name   :',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '$fullName',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Username   :',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '$username',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Email   :',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '$email',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Address   :',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '$address',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Fine   :',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    'Rp $fine',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Status Email   :',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    'Status Email: ${statusEmail ? 'Verified' : 'Not Verified'}',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -238,7 +341,7 @@ class _PagePelangganState extends State<PagePelanggan> {
         return AlertDialog(
           title: const Text('Konfirmasi'),
           content: const Text(
-              'Apakah kamu yakin ingin menghapus user ini (User akan Diblokir)!'),
+              'Apakah kamu yakin ingin menghapus pelanggan ini (Pelanggan akan Diblokir)!'),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

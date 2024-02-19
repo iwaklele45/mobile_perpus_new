@@ -29,6 +29,4 @@ Tambahkan Di FirebaseAuth dan FirebaseFirestore Email Admin :
     - levelUser   : admin
     - namaLengkap : AdminPerpus
     - username    : Admin
-    - noTlp       : null
     - statusEmail : true
-    - uidUser     : uidUser         

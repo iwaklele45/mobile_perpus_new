@@ -9,19 +9,20 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
 
-class TambahBuku extends StatefulWidget {
-  const TambahBuku({super.key});
+class EditBuku extends StatefulWidget {
+  final DocumentSnapshot buku;
+
+  const EditBuku({Key? key, required this.buku}) : super(key: key);
 
   @override
-  State<TambahBuku> createState() => _TambahBukuState();
+  State<EditBuku> createState() => _EditBukuState();
 }
 
-class _TambahBukuState extends State<TambahBuku> {
+class _EditBukuState extends State<EditBuku> {
   String dropdownValue1 = list.first;
   String dropdownValue2 = list.first;
   String textAreaValue = '';
-  String selectedRak = '0';
-  String selectedGenre = '0';
+  String selectedKategori = '0';
   var reasonValidation = true;
   File? _image;
   TextEditingController _judulBukuController = TextEditingController();
@@ -30,26 +31,97 @@ class _TambahBukuState extends State<TambahBuku> {
   TextEditingController _sinopsisBukuController = TextEditingController();
   TextEditingController _tahunBukuController = TextEditingController();
   TextEditingController _stokBuku = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isLoading = false;
+  File? _editImage;
+  String? _previousImageUrl;
+
+  Future<void> _loadPreviousImage() async {
+    String existingImageUrl = widget.buku['imageUrl'];
+    if (existingImageUrl.isNotEmpty) {
+      setState(() {
+        _editImage = File(existingImageUrl);
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadPreviousImage();
+    _judulBukuController.text = widget.buku['judul'];
+    _penerbitBukuController.text = widget.buku['penerbit'];
+    _pengarangBukuController.text = widget.buku['penulis'];
+    _tahunBukuController.text = widget.buku['tahun'];
+    _sinopsisBukuController.text = widget.buku['sinopsis'];
+    _stokBuku.text = widget.buku['stokBuku'].toString();
+    selectedKategori = widget.buku['kategori'];
+    String? _editImageUrl = widget.buku['imageUrl'];
+
+    String existingImageUrl = widget.buku['imageUrl'];
+    if (existingImageUrl != null && existingImageUrl.isNotEmpty) {}
+  }
+
+  Future<String> downloadImage(String imageUrl) async {
+    return imageUrl;
+  }
+
+  Future<void> _pickEditImage() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        File editedImage = File(pickedFile.path);
+        String imageUrl = await _uploadImage(editedImage);
+
+        setState(() {
+          _editImage = editedImage;
+          _previousImageUrl = imageUrl;
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<String> _uploadImage(File image) async {
+    try {
+      firebase_storage.Reference storageReference = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('images/${DateTime.now().millisecondsSinceEpoch}.png');
+
+      firebase_storage.UploadTask uploadTask = storageReference.putFile(image);
+
+      await uploadTask.whenComplete(() => null);
+
+      return await storageReference.getDownloadURL();
+    } catch (e) {
+      print('Error uploading image: $e');
+      return '';
+    }
   }
 
   void _saveBook() async {
     setState(() {
       _isLoading = true;
     });
+
     if (_judulBukuController.text.isEmpty ||
         _penerbitBukuController.text.isEmpty ||
         _pengarangBukuController.text.isEmpty ||
         _tahunBukuController.text.isEmpty ||
         _sinopsisBukuController.text.isEmpty ||
         _stokBuku.text.isEmpty ||
-        selectedRak.toString() == '0' ||
-        selectedGenre.toString() == '0' ||
-        _image == null) {
+        selectedKategori.toString() == '0') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kolom harus di isi semua!')),
       );
@@ -59,39 +131,44 @@ class _TambahBukuState extends State<TambahBuku> {
       print("kosong");
     } else {
       try {
-        final storageRef = firebase_storage.FirebaseStorage.instance
-            .ref()
-            .child('images')
-            .child('buku_${DateTime.now().millisecondsSinceEpoch}.jpg');
-        await storageRef.putFile(_image!);
-        String imageUrl = await storageRef.getDownloadURL();
-        await FirebaseFirestore.instance.collection('buku').add({
+        final bookRef = _firestore.collection('buku').doc(widget.buku.id);
+
+        String existingImageUrl = widget.buku['imageUrl'] ?? '';
+
+        // Check if a new image is selected
+        if (_editImage != null && _editImage!.path != existingImageUrl) {
+          String imageUrl = await _uploadImage(_editImage!);
+
+          // Only update the image URL if a new image is selected
+          await bookRef.update({
+            'imageUrl': imageUrl,
+          });
+        }
+
+        await bookRef.update({
           'judul': _judulBukuController.text,
-          'pengarang': _pengarangBukuController.text,
+          'penulis': _pengarangBukuController.text,
           'penerbit': _penerbitBukuController.text,
           'tahun': _tahunBukuController.text,
           'sinopsis': _sinopsisBukuController.text,
-          'stokBuku': int.parse(_stokBuku.text), // Ubah ke tipe data int
-          'imageUrl': imageUrl,
-          'rak': selectedRak,
-          'genre': selectedGenre,
-          'statusBuku': 'tidak dipinjam',
+          'kategori': selectedKategori,
+          'stokBuku': int.parse(_stokBuku.text),
         });
+
         _judulBukuController.clear();
         _pengarangBukuController.clear();
         _penerbitBukuController.clear();
         _tahunBukuController.clear();
         _sinopsisBukuController.clear();
-        _stokBuku.clear();
 
-        _image = null;
         setState(() {
-          selectedGenre = '0';
-          selectedRak = '0';
+          selectedKategori = '0';
+          // Reset _editImage after saving
         });
-        print('Buku berhasil ditambahkan: $_judulBukuController');
+
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Buku Berhasil Ditambahkan')));
+          const SnackBar(content: Text('Buku Berhasil Diedit')),
+        );
         Navigator.pop(context);
       } catch (e) {
         print('Error: $e');
@@ -123,7 +200,7 @@ class _TambahBukuState extends State<TambahBuku> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Buku'),
+        title: const Text('Edit Buku'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -268,7 +345,7 @@ class _TambahBukuState extends State<TambahBuku> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Padding(
@@ -296,7 +373,7 @@ class _TambahBukuState extends State<TambahBuku> {
                         fontWeight: FontWeight.w500,
                       ),
                       icon: const Icon(
-                        Icons.format_list_numbered,
+                        Icons.numbers_outlined,
                         color: Color.fromARGB(255, 60, 57, 57),
                       ),
                     ),
@@ -323,68 +400,7 @@ class _TambahBukuState extends State<TambahBuku> {
                     ),
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
-                          .collection('rakBuku')
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        List<DropdownMenuItem> rakItems = [];
-                        if (!snapshot.hasData) {
-                          const CircularProgressIndicator();
-                        } else {
-                          final raks = snapshot.data?.docs.reversed.toList();
-                          rakItems.add(
-                            const DropdownMenuItem(
-                              value: '0',
-                              child: Text(
-                                'Pilih Rak',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          );
-                          for (var rak in raks!) {
-                            rakItems.add(
-                              DropdownMenuItem(
-                                value: rak['nama'],
-                                child: Text(
-                                  rak['nama'],
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                        return DropdownButtonHideUnderline(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: DropdownButton(
-                                value: selectedRak,
-                                items: rakItems,
-                                onChanged: (rakValue) {
-                                  setState(() {
-                                    selectedRak = rakValue;
-                                  });
-                                  print(rakValue);
-                                }),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2.3,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(
-                        10,
-                      ),
-                      color: Colors.grey[200],
-                    ),
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('genre')
+                          .collection('kategori')
                           .snapshots(),
                       builder: (context, snapshot) {
                         List<DropdownMenuItem> genreItems = [];
@@ -421,13 +437,13 @@ class _TambahBukuState extends State<TambahBuku> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10.0),
                             child: DropdownButton(
-                                value: selectedGenre,
+                                value: selectedKategori,
                                 items: genreItems,
-                                onChanged: (rakValue) {
+                                onChanged: (kategoriValue) {
                                   setState(() {
-                                    selectedGenre = rakValue;
+                                    selectedKategori = kategoriValue;
                                   });
-                                  print(rakValue);
+                                  print(kategoriValue);
                                 }),
                           ),
                         );
@@ -478,17 +494,17 @@ class _TambahBukuState extends State<TambahBuku> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
-                  Text(_image == null ? 'Pilih Gambar' : 'Ubah Gambar'),
+                  Text(_editImage == null ? 'Pilih Gambar' : 'Ubah Gambar'),
                 ],
               ),
             ),
             GestureDetector(
               onTap: () async {
-                _pickImage();
+                await _pickEditImage();
               },
               child: Column(
                 children: [
-                  _image == null
+                  _editImage == null
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 25.0),
                           child: Container(
@@ -496,20 +512,26 @@ class _TambahBukuState extends State<TambahBuku> {
                             height: 60,
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
-                              borderRadius: BorderRadius.circular(
-                                10,
-                              ),
+                              borderRadius: BorderRadius.circular(10),
                               color: Colors.grey[200],
                             ),
                             child: const Icon(Icons.camera_alt),
                           ),
                         )
-                      : Image.file(
-                          _image!,
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                        ),
+                      : _editImage!.path.startsWith('https://') ||
+                              _editImage!.path.startsWith('http://')
+                          ? Image.network(
+                              _editImage!.path,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.file(
+                              _editImage!,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
                 ],
               ),
             ),

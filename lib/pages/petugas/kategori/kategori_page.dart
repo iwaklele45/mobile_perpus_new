@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PageRakBuku extends StatefulWidget {
-  const PageRakBuku({Key? key}) : super(key: key);
+class PageKategori extends StatefulWidget {
+  const PageKategori({Key? key}) : super(key: key);
 
   @override
-  State<PageRakBuku> createState() => _PageRakBukuState();
+  State<PageKategori> createState() => _PageKategoriState();
 }
 
-class _PageRakBukuState extends State<PageRakBuku> {
-  final TextEditingController _rakController = TextEditingController();
+class _PageKategoriState extends State<PageKategori> {
+  final TextEditingController _kategoriController = TextEditingController();
   late int _selectedItemIndex;
-  late List<DocumentSnapshot> rakBukuList;
+  late List<DocumentSnapshot> kategoriBukuList;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -28,7 +28,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Rak Buku')),
+      appBar: AppBar(title: const Text('Kategori Buku')),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
@@ -68,7 +68,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('rakBuku')
+                    .collection('kategori')
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,10 +76,10 @@ class _PageRakBukuState extends State<PageRakBuku> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else {
-                    rakBukuList = snapshot.data!.docs;
+                    kategoriBukuList = snapshot.data!.docs;
 
                     List<DocumentSnapshot> filteredList =
-                        rakBukuList.where((document) {
+                        kategoriBukuList.where((document) {
                       var rakData = document.data() as Map<String, dynamic>;
                       var namaRak = rakData['nama'].toString().toLowerCase();
                       var searchQuery = _searchController.text.toLowerCase();
@@ -96,15 +96,15 @@ class _PageRakBukuState extends State<PageRakBuku> {
                           var namaRak = rakData['nama'];
 
                           return GestureDetector(
-                            onLongPress: () {
+                            onTap: () {
                               setState(() {
-                                _selectedItemIndex =
-                                    rakBukuList.indexOf(filteredList[index]);
+                                _selectedItemIndex = kategoriBukuList
+                                    .indexOf(filteredList[index]);
                               });
                               _showOptionsDialog(context);
                             },
                             child: ListTile(
-                              title: Text(namaRak),
+                              title: Text('${index + 1}. $namaRak'),
                             ),
                           );
                         },
@@ -112,7 +112,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
                     } else {
                       return const Center(
                         child: Text(
-                          'Tidak ada rak buku',
+                          'Tidak ada kategori buku',
                           style: TextStyle(
                             fontSize: 15,
                           ),
@@ -129,7 +129,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color.fromARGB(255, 60, 57, 57),
         label: const Text(
-          'Tambah Rak',
+          'Tambah Kategori',
           style: TextStyle(
             color: Colors.white,
             fontSize: 12,
@@ -140,21 +140,21 @@ class _PageRakBukuState extends State<PageRakBuku> {
           color: Colors.white,
         ),
         onPressed: () {
-          _showTambahRakDialog(context);
+          _showTambahKategoriDialog(context);
         },
       ),
     );
   }
 
-  void _showTambahRakDialog(BuildContext context) {
+  void _showTambahKategoriDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Tambah Rak Buku'),
+          title: const Text('Tambah Kategori Buku'),
           content: TextField(
-            controller: _rakController,
-            decoration: const InputDecoration(labelText: 'Nama Rak Buku'),
+            controller: _kategoriController,
+            decoration: const InputDecoration(labelText: 'Nama Kategori Buku'),
           ),
           actions: [
             TextButton(
@@ -165,7 +165,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
             ),
             TextButton(
               onPressed: () {
-                _tambahRakBuku();
+                _tambahKategoriBuku();
                 Navigator.of(context).pop();
               },
               child: const Text('Simpan'),
@@ -176,20 +176,20 @@ class _PageRakBukuState extends State<PageRakBuku> {
     );
   }
 
-  void _tambahRakBuku() async {
+  void _tambahKategoriBuku() async {
     try {
-      String namaRak = _rakController.text;
+      String namaRak = _kategoriController.text;
 
       if (namaRak.isNotEmpty) {
-        await FirebaseFirestore.instance.collection('rakBuku').add({
+        await FirebaseFirestore.instance.collection('kategori').add({
           'nama': namaRak,
         });
 
-        _rakController.clear();
+        _kategoriController.clear();
 
-        print('Rak Buku berhasil ditambahkan: $namaRak');
+        print('Kategori Buku berhasil ditambahkan: $namaRak');
       } else {
-        print('Nama Rak Buku tidak boleh kosong');
+        print('Kategori Rak Buku tidak boleh kosong');
       }
     } catch (e) {
       print('Error: $e');
@@ -210,7 +210,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    _editRakBuku();
+                    _editKategoriBuku();
                   },
                   child: const Text(
                     'Edit',
@@ -219,7 +219,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
                 ),
                 TextButton(
                   onPressed: () {
-                    _hapusRakBuku();
+                    _hapusKategoriBuku();
                     Navigator.of(context).pop();
                   },
                   child: const Text(
@@ -244,9 +244,8 @@ class _PageRakBukuState extends State<PageRakBuku> {
     );
   }
 
-  void _editRakBuku() {
-    String currentNamaRak = rakBukuList[_selectedItemIndex]['nama'];
-    print('edit rak');
+  void _editKategoriBuku() {
+    String currentNamaRak = kategoriBukuList[_selectedItemIndex]['nama'];
 
     TextEditingController _editController =
         TextEditingController(text: currentNamaRak);
@@ -255,12 +254,12 @@ class _PageRakBukuState extends State<PageRakBuku> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit Rak Buku'),
+          title: const Text('Edit Kategori Buku'),
           content: TextField(
             controller: _editController,
             decoration: const InputDecoration(
-              labelText: 'Nama Rak Buku',
-              hintText: 'Rak Baru',
+              labelText: 'Nama Kategori Buku',
+              hintText: 'Kategori Baru',
             ),
           ),
           actions: [
@@ -276,7 +275,7 @@ class _PageRakBukuState extends State<PageRakBuku> {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text('Kolom tidak boleh kosong!')));
                 } else {
-                  _simpanEditRakBuku(currentNamaRak, _editController.text);
+                  _simpanEditKategoriBuku(currentNamaRak, _editController.text);
                   Navigator.of(context).pop();
                 }
               },
@@ -288,62 +287,61 @@ class _PageRakBukuState extends State<PageRakBuku> {
     );
   }
 
-  void _simpanEditRakBuku(String currentNamaRak, String editedNamaRak) async {
+  void _simpanEditKategoriBuku(
+      String currentNamaRak, String editedNamaRak) async {
     try {
       if (currentNamaRak != editedNamaRak) {
         await FirebaseFirestore.instance
-            .collection('rakBuku')
-            .doc(rakBukuList[_selectedItemIndex].id)
+            .collection('kategori')
+            .doc(kategoriBukuList[_selectedItemIndex].id)
             .update({'nama': editedNamaRak});
 
-        print('Rak Buku berhasil diedit: $currentNamaRak -> $editedNamaRak');
+        print(
+            'Kategori Buku berhasil diedit: $currentNamaRak -> $editedNamaRak');
       } else {
-        print('Tidak ada perubahan pada nama rak');
+        print('Tidak ada perubahan pada nama Kategori');
       }
     } catch (e) {
       print('Error: $e');
     }
   }
 
-  void _hapusRakBuku() async {
+  Future<void> _hapusKategoriBuku() async {
     try {
-      bool isRakTerpakai = await _cekRakTerpakai();
+      bool isKategoriTerpakai = await _cekKategoriTerpakai();
 
-      if (isRakTerpakai) {
-        // Jika rak buku masih terpakai, tampilkan pesan peringatan
+      if (isKategoriTerpakai) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Rak Buku masih terpakai oleh beberapa buku.'),
+            content: Text('Kategori Buku masih terpakai oleh beberapa buku.'),
           ),
         );
       } else {
-        // Jika rak buku tidak terpakai, hapus rak buku
         FirebaseFirestore.instance
-            .collection('rakBuku')
-            .doc(rakBukuList[_selectedItemIndex].id)
+            .collection('kategori')
+            .doc(kategoriBukuList[_selectedItemIndex].id)
             .delete();
 
-        print('Rak Buku berhasil dihapus');
+        print('Kategori Buku berhasil dihapus');
       }
     } catch (e) {
       print('Error: $e');
     }
   }
 
-  Future<bool> _cekRakTerpakai() async {
+  Future<bool> _cekKategoriTerpakai() async {
     try {
-      String namaRak = rakBukuList[_selectedItemIndex]['nama'];
+      String namaKategori = kategoriBukuList[_selectedItemIndex]['nama'];
 
-      // Periksa apakah ada buku yang menggunakan rak ini
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('buku')
-          .where('rak', isEqualTo: namaRak)
+          .where('kategori', isEqualTo: namaKategori)
           .get();
 
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       print('Error: $e');
-      return true; // Anggap rak terpakai jika terjadi kesalahan
+      return false;
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:email_otp/email_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:mobile_perpus/pages/loginPage/login_page.dart';
 
 class Otp extends StatelessWidget {
@@ -89,7 +90,7 @@ class _VerifyPageState extends State<VerifyPage> {
           await FirebaseFirestore.instance
               .collection('users')
               .doc(statusEmail)
-              .update({"status email": true});
+              .update({"statusEmail": true});
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text("Email terverifikasi"),
           ));
@@ -142,13 +143,13 @@ class _VerifyPageState extends State<VerifyPage> {
               ),
               Text(
                 'We send your email OTP!',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.inter(
                   fontSize: 20,
                 ),
               ),
               Text(
                 'Enter the OTP!',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.inter(
                   fontSize: 20,
                 ),
               ),
@@ -182,8 +183,8 @@ class _VerifyPageState extends State<VerifyPage> {
                 onTap: checkEmailOTP,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 60, 57, 57),
-                    borderRadius: BorderRadius.circular(15),
+                    color: AppColors.mainColor,
+                    borderRadius: BorderRadius.circular(5),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -192,9 +193,9 @@ class _VerifyPageState extends State<VerifyPage> {
                     ),
                     child: Text(
                       'Verify Email',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.inter(
                         fontSize: 17,
-                        color: Colors.white,
+                        color: AppColors.whiteColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
