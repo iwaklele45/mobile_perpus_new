@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "587176864451",
+    "project_id": "mobile-perpus-new",
+    "storage_bucket": "mobile-perpus-new.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587176864451:android:433eb8e444086cdc825076",
+        "android_client_info": {
+          "package_name": "com.example.mobile_perpus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3jvFhDW_r4ltOdelYpkLtvMWlLi5IgJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
