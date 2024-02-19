@@ -18,17 +18,17 @@ samples, guidance on mobile development, and a full API reference.
 
 Tambahkan Di FirebaseAuth dan FirebaseFirestore Email Admin : 
 
-FirebaseAuth : 
-    Email       : admin@gmail.com
-    Password    : admin123
+- FirebaseAuth : 
+    - Email       : admin@gmail.com
+    - Password    : admin123
 
-FirebaseFirestore : 
-    alamat      : null
-    denda       : 0
-    email       : admin@gmail.com
-    levelUser   : admin
-    namaLengkap : AdminPerpus
-    username    : Admin
-    noTlp       : null
-    statusEmail : true
-    uidUser     : uidUser         
+- FirebaseFirestore : 
+    - alamat      : null
+    - denda       : 0
+    - email       : admin@gmail.com
+    - levelUser   : admin
+    - namaLengkap : AdminPerpus
+    - username    : Admin
+    - noTlp       : null
+    - statusEmail : true
+    - uidUser     : uidUser         
