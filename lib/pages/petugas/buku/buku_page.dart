@@ -232,7 +232,8 @@ class _PageBukuState extends State<PageBuku> {
                     ),
                   ],
                 ),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Penerbit   : ',

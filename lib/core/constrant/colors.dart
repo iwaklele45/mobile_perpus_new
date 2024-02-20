@@ -15,4 +15,5 @@ class HexColor extends Color {
 class AppColors {
   static Color mainColor = HexColor('#393939');
   static Color whiteColor = HexColor('#FFFFFF');
+  static Color secontWhiteColor = HexColor('#929292');
 }

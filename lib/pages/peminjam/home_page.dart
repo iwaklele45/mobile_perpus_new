@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mobile_perpus/core/assets/assets.gen.dart';
+import 'package:mobile_perpus/core/constrant/banner_slider.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:mobile_perpus/pages/loginPage/login_page.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book_genre.dart';
@@ -21,13 +24,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String userName = '';
-  // int favUser = 0;
+
   StreamSubscription<QuerySnapshot>? _favBookSubscription;
   int dendaUser = 0;
   int currentPageIndex = 0;
   User? user = FirebaseAuth.instance.currentUser;
   TextEditingController searchController = TextEditingController();
   late List<DocumentSnapshot> genreList;
+  final List<String> banners1 = [
+    Assets.images.banner1.path,
+    Assets.images.banner2.path,
+  ];
+  final List<String> banners2 = [
+    Assets.images.banner2.path,
+    Assets.images.banner2.path,
+    Assets.images.banner2.path,
+  ];
 
   int jumlahFavBookUser = 0;
 
@@ -38,11 +50,10 @@ class _HomePageState extends State<HomePage> {
         DocumentReference userDocRef =
             FirebaseFirestore.instance.collection('users').doc(user.uid);
 
-        // Menambahkan listener untuk mendengar perubahan data secara real-time
         userDocRef.snapshots().listen((DocumentSnapshot userSnapshot) {
           if (userSnapshot.exists) {
             setState(() {
-              userName = userSnapshot['full name'] ?? '';
+              userName = userSnapshot['username'] ?? '';
             });
           }
         });
@@ -59,7 +70,6 @@ class _HomePageState extends State<HomePage> {
         DocumentReference userDocRef =
             FirebaseFirestore.instance.collection('users').doc(user.uid);
 
-        // Menambahkan listener untuk mendengar perubahan data secara real-time
         userDocRef.snapshots().listen((DocumentSnapshot userSnapshot) {
           if (userSnapshot.exists) {
             setState(() {
@@ -96,32 +106,11 @@ class _HomePageState extends State<HomePage> {
           .snapshots()
           .listen((QuerySnapshot snapshot) {
         setState(() {
-          // Menghitung jumlah buku favorit dari user
           jumlahFavBookUser = snapshot.size;
         });
       });
     }
   }
-
-  // Future<void> fetchFavUser() async {
-  //   try {
-  //     User? user = FirebaseAuth.instance.currentUser;
-  //     if (user != null) {
-  //       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-  //           .collection('favBook')
-  //           .where('id user fav', isEqualTo: user.uid)
-  //           .get();
-
-  //       setState(() {
-  //         // Menghitung jumlah buku favorit dari user
-  //         jumlahFavBookUser = querySnapshot.size;
-  //       });
-  //       print(jumlahFavBookUser);
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching user data: $e');
-  //   }
-  // }
 
   @override
   void initState() {
@@ -141,16 +130,14 @@ class _HomePageState extends State<HomePage> {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 15.0),
-          child: Image.asset('assets/images/moper.png'),
-        ),
-        title: const Text(
-          'Mobile Perpus',
-          style: TextStyle(
+        title: Text(
+          'MoPer',
+          style: GoogleFonts.inter(
             fontSize: 20.0,
+            fontWeight: FontWeight.w600,
           ),
         ),
+        centerTitle: true,
         actions: [
           Padding(
               padding: const EdgeInsets.only(right: 10.0),
@@ -167,31 +154,29 @@ class _HomePageState extends State<HomePage> {
               )),
         ],
       ),
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: AppColors.whiteColor,
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
             currentPageIndex = index;
           });
         },
-        indicatorColor: const Color.fromARGB(255, 60, 57, 57),
+        indicatorColor: Colors.transparent,
         selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
+        destinations: <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(
-              Icons.home,
-              color: Colors.white,
+            selectedIcon: Assets.icons.icon1.svg(
+              color: AppColors.mainColor,
             ),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
+            icon: Assets.icons.icon1.svg(),
+            label: 'HOME',
           ),
           NavigationDestination(
-            selectedIcon: Icon(
-              Icons.book,
-              color: Colors.white,
+            selectedIcon: Assets.icons.search.svg(
+              color: AppColors.mainColor,
             ),
-            icon: Icon(Icons.book_outlined),
-            label: 'Kategori',
+            icon: Assets.icons.search.svg(),
+            label: 'EXPLORE',
           ),
           NavigationDestination(
             selectedIcon: Icon(
@@ -212,7 +197,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: <Widget>[
-        // Home Page
         SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -223,16 +207,9 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: [
                       Text(
-                        'Selamat Datang, ',
-                        style: GoogleFonts.poppins(
-                          fontSize: 15,
-                          color: const Color.fromARGB(255, 60, 57, 57),
-                        ),
-                      ),
-                      Text(
-                        '$userName!',
-                        style: GoogleFonts.poppins(
-                          fontSize: 15,
+                        'Selamat Datang $userName !',
+                        style: GoogleFonts.inter(
+                          fontSize: 17,
                           fontWeight: FontWeight.w600,
                           color: const Color.fromARGB(255, 60, 57, 57),
                         ),
@@ -242,31 +219,116 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(
                     height: 10,
                   ),
+                  BannerSlider(items: banners1),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (context) => const PageAllBook())),
-                            child: const Text(
-                              'Semua Buku',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                      Text(
+                        'Kategori',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      GestureDetector(
+                        child: Text(
+                          'See All',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: AppColors.secontWhiteColor,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          const Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 50,
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('kategori')
+                          .where('nama')
+                          .orderBy(
+                            'nama',
+                            descending: false,
                           )
-                        ],
+                          .limit(4)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        var categories = snapshot.data?.docs;
+
+                        return ListView.builder(
+                          itemCount: categories?.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            var category = categories?[index].data()
+                                as Map<String, dynamic>;
+                            var namaKategori = category['nama'] ?? '';
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => PinjamBuku(
+                                      buku: categories![index],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(5),
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.mainColor,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 20.0, left: 20.0, top: 11),
+                                        child: Text(
+                                          namaKategori,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.whiteColor,
+                                          ),
+                                        ),
+                                      )),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Buku',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      GestureDetector(
+                        child: Text(
+                          'See All',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: AppColors.secontWhiteColor,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -276,10 +338,8 @@ class _HomePageState extends State<HomePage> {
                       stream: FirebaseFirestore.instance
                           .collection('buku')
                           .where('stok buku')
-                          .orderBy('judul',
-                              descending:
-                                  false) // Menambahkan pengurutan berdasarkan judul
-                          .limit(8)
+                          .orderBy('judul', descending: false)
+                          .limit(3)
                           .snapshots(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -297,6 +357,8 @@ class _HomePageState extends State<HomePage> {
                             var book =
                                 books?[index].data() as Map<String, dynamic>;
                             var imageUrl = book['imageUrl'] ?? '';
+                            var author = book['penulis'];
+                            int stokBuku = book['stokBuku'];
 
                             return GestureDetector(
                               onTap: () {
@@ -309,14 +371,37 @@ class _HomePageState extends State<HomePage> {
                                 );
                               },
                               child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: Image.network(
-                                    imageUrl,
-                                    width: 120,
-                                    height: 180,
-                                  ),
+                                padding: const EdgeInsets.only(right: 15.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        imageUrl,
+                                        width: 100,
+                                        height: 145,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 2,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(author),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(
+                                          stokBuku.toString(),
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
@@ -325,30 +410,19 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
-                  const Row(
-                    children: [
-                      Text(
-                        'Rekomendasi Buku',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 20,
-                      )
-                    ],
+                  Text(
+                    'Rekomendasi Buku',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   SizedBox(
                     height: screenHeight - 420,
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('buku')
-                          .where('stok buku')
+                          .where('stokBuku')
                           .limit(10)
                           .snapshots(),
                       builder: (context, snapshot) {
@@ -359,7 +433,6 @@ class _HomePageState extends State<HomePage> {
 
                         var recommendedBooks = snapshot.data?.docs;
 
-                        // Mengacak daftar buku
                         recommendedBooks?.shuffle();
 
                         return SizedBox(
@@ -374,7 +447,7 @@ class _HomePageState extends State<HomePage> {
                                       as Map<String, dynamic>;
                                   var imageUrl = book['imageUrl'] ?? '';
                                   var author =
-                                      book['pengarang'] ?? 'Unknown Author';
+                                      book['penulis'] ?? 'Unknown Author';
 
                                   return GestureDetector(
                                     onTap: () {
@@ -467,7 +540,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        // Kategori Page
         Column(
           children: [
             const SizedBox(height: 5),
@@ -483,12 +555,12 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.only(left: 10.0),
                   child: TextField(
                     controller: searchController,
-                    style: GoogleFonts.poppins(),
+                    style: GoogleFonts.inter(),
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Search',
-                      hintStyle: GoogleFonts.poppins(
+                      hintStyle: GoogleFonts.inter(
                         fontWeight: FontWeight.w500,
                       ),
                       suffixIcon: GestureDetector(
@@ -518,7 +590,6 @@ class _HomePageState extends State<HomePage> {
                   } else {
                     genreList = snapshot.data!.docs;
 
-                    // Filter the list based on the search query
                     List<DocumentSnapshot> filteredList =
                         genreList.where((document) {
                       var namaGenre = document.data() as Map<String, dynamic>;
@@ -570,7 +641,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        // Pinjam Page
         Column(
           children: [
             const SizedBox(height: 5),
@@ -743,7 +813,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        // Settings Page
         Center(
           child: Column(
             children: [
