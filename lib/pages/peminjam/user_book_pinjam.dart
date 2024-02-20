@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
 
@@ -33,7 +34,7 @@ class _PinjamBukuState extends State<PinjamBuku> {
             .get();
 
         setState(() {
-          userName = userSnapshot['fullName'] ?? 'Username';
+          userName = userSnapshot['namaLengkap'] ?? 'Username';
         });
       }
     } catch (e) {
@@ -240,7 +241,12 @@ class _PinjamBukuState extends State<PinjamBuku> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Pilih Lama Peminjaman : '),
+            title: Text(
+              'Pilih Lama Peminjaman : ',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+              ),
+            ),
             content: Container(
               height: 150,
               child: Column(

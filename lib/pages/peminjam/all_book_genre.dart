@@ -23,7 +23,7 @@ class _AllGenreBukuPageState extends State<AllGenreBukuPage> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('buku')
-            .where('genre', isEqualTo: widget.genreName)
+            .where('kategori', isEqualTo: widget.genreName)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -44,7 +44,7 @@ class _AllGenreBukuPageState extends State<AllGenreBukuPage> {
               itemBuilder: (context, index) {
                 var bookData = books[index].data() as Map<String, dynamic>;
                 var title = bookData['judul'];
-                var author = bookData['pengarang'];
+                var author = bookData['penulis'];
                 var coverUrl = bookData['imageUrl'];
 
                 return GestureDetector(
@@ -78,7 +78,7 @@ class _AllGenreBukuPageState extends State<AllGenreBukuPage> {
                           child: ListTile(
                             title: Text(title),
                             subtitle: Text(
-                              'Pengarang: $author',
+                              'Penulis: $author',
                               style: TextStyle(
                                 fontSize: 15,
                               ),

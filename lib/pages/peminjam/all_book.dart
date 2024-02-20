@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/assets/assets.gen.dart';
+import 'package:mobile_perpus/core/constrant/search_field.dart';
 import 'package:mobile_perpus/pages/peminjam/user_book_pinjam.dart';
 
 class PageAllBook extends StatefulWidget {
@@ -27,39 +29,21 @@ class _PageAllBookState extends State<PageAllBook> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Books')),
+      appBar: AppBar(title: const Text('Semua Buku')),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Column(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white),
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.grey[200],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: TextField(
-                  controller: _searchController,
-                  style: GoogleFonts.poppins(),
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Search by Author or Title',
-                    hintStyle: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                    ),
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        _searchController.clear();
-                        setState(() {});
-                      },
-                      child: const Icon(Icons.clear),
-                    ),
-                  ),
-                ),
-              ),
+            TextFieldSearch(
+              label: 'Cari Buku',
+              controller: _searchController,
+              icon: Assets.icons.search.svg(),
+              suffixIcon: GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    setState(() {});
+                  },
+                  child: Icon(Icons.clear)),
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -79,8 +63,7 @@ class _PageAllBookState extends State<PageAllBook> {
                     List<DocumentSnapshot> filteredList =
                         bookList.where((document) {
                       var bookData = document.data() as Map<String, dynamic>;
-                      var author =
-                          bookData['pengarang'].toString().toLowerCase();
+                      var author = bookData['penulis'].toString().toLowerCase();
                       var title = bookData['judul'].toString().toLowerCase();
                       var searchQuery = _searchController.text.toLowerCase();
 
@@ -97,9 +80,10 @@ class _PageAllBookState extends State<PageAllBook> {
                           bookList.length;
                           var book =
                               bookList[index].data() as Map<String, dynamic>;
-                          var author = bookData['pengarang'];
+                          var author = bookData['penulis'];
                           var coverUrl = bookData['imageUrl'];
                           var titleBook = bookData['judul'];
+                          var year = bookData['tahun'];
 
                           return GestureDetector(
                             onTap: () {
@@ -128,7 +112,7 @@ class _PageAllBookState extends State<PageAllBook> {
                                     child: ListTile(
                                       title: Text(titleBook),
                                       subtitle: Text(
-                                        'Pengarang: $author',
+                                        'Penulis: $author\nTahun : $year',
                                         style: TextStyle(
                                           fontSize: 15,
                                         ),

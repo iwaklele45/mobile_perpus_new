@@ -263,7 +263,7 @@ class _TambahBukuState extends State<TambahBuku> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Padding(

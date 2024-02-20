@@ -14,6 +14,7 @@ import 'package:mobile_perpus/pages/peminjam/all_book_genre.dart';
 import 'package:mobile_perpus/pages/peminjam/change_profile_user.dart';
 import 'package:mobile_perpus/pages/peminjam/history_peminjaman.dart';
 import 'package:mobile_perpus/pages/peminjam/page_favBook_user.dart';
+import 'package:mobile_perpus/pages/peminjam/semua_koleksi_buku.dart';
 import 'package:mobile_perpus/pages/peminjam/user_book_pinjam.dart';
 
 class HomePage extends StatefulWidget {
@@ -41,8 +42,11 @@ class _HomePageState extends State<HomePage> {
     Assets.images.banner2.path,
     Assets.images.banner2.path,
   ];
-
   int jumlahFavBookUser = 0;
+  String selectedKategori = '0';
+
+  String selectedDropdownValue = '';
+  List<String> dropdownItems = [];
 
   Future<void> fetchUserData() async {
     try {
@@ -197,6 +201,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: <Widget>[
+        // HOME PAGE
         SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -231,6 +236,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const AllKoleksiBook()));
+                        },
                         child: Text(
                           'See All',
                           style: GoogleFonts.inter(
@@ -322,6 +331,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const PageAllBook()));
+                        },
                         child: Text(
                           'See All',
                           style: GoogleFonts.inter(
@@ -388,9 +401,9 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     Row(
                                       children: [
-                                        Text(author),
+                                        Text('$author'),
                                         SizedBox(
-                                          width: 10,
+                                          width: 23,
                                         ),
                                         Text(
                                           stokBuku.toString(),
@@ -546,18 +559,100 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: TextFieldSearch(
-                  label: 'Search',
-                  suffixIcon: GestureDetector(
-                      onTap: () {
-                        searchController.clear();
-                        setState(() {});
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFieldSearch(
+                      label: 'Search',
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          searchController.clear();
+                          setState(() {});
+                        },
+                        child: Icon(Icons.clear),
+                      ),
+                      controller: searchController,
+                      icon: Assets.icons.search.svg(
+                        color: AppColors.mainColor,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    height: 35.0,
+                    width: MediaQuery.of(context).size.width / 2.3,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.mainColor),
+                      borderRadius: BorderRadius.circular(
+                        5,
+                      ),
+                      color: AppColors.whiteColor,
+                    ),
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('kategori')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        List<DropdownMenuItem> kategoriItems = [];
+                        if (!snapshot.hasData) {
+                          const CircularProgressIndicator();
+                        } else {
+                          final genres = snapshot.data?.docs.reversed.toList();
+                          kategoriItems.add(
+                            const DropdownMenuItem(
+                              value: '0',
+                              child: Text(
+                                'Kategori',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          );
+                          for (var genre in genres!) {
+                            kategoriItems.add(
+                              DropdownMenuItem(
+                                value: genre['nama'],
+                                child: Text(
+                                  genre['nama'],
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                        return DropdownButtonHideUnderline(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: DropdownButton(
+                                value: selectedKategori,
+                                items: kategoriItems,
+                                onChanged: (rakValue) {
+                                  setState(() {
+                                    selectedKategori = rakValue;
+                                  });
+                                  print(rakValue);
+                                }),
+                          ),
+                        );
                       },
-                      child: Icon(Icons.clear)),
-                  controller: searchController,
-                  icon: Assets.icons.search.svg(
-                    color: AppColors.mainColor,
-                  )),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -576,34 +671,36 @@ class _HomePageState extends State<HomePage> {
 
                     List<DocumentSnapshot> filteredList =
                         genreList.where((document) {
-                      var namaGenre = document.data() as Map<String, dynamic>;
-                      var namaRak = namaGenre['nama'].toString().toLowerCase();
+                      var nameKategoriBuku =
+                          document.data() as Map<String, dynamic>;
+                      var namaKategori =
+                          nameKategoriBuku['nama'].toString().toLowerCase();
                       var searchQuery = searchController.text.toLowerCase();
 
-                      return namaRak.contains(searchQuery);
+                      return namaKategori.contains(searchQuery);
                     }).toList();
 
                     if (filteredList.isNotEmpty) {
                       return ListView.builder(
                         itemCount: filteredList.length,
                         itemBuilder: (context, index) {
-                          var namaGenre = filteredList[index].data()
+                          var nameKategoriBuku = filteredList[index].data()
                               as Map<String, dynamic>;
-                          var namaRak = namaGenre['nama'];
+                          var namaKategori = nameKategoriBuku['nama'];
 
                           return GestureDetector(
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => AllGenreBukuPage(
-                                    genreName: namaRak,
+                                    genreName: namaKategori,
                                   ),
                                 ),
                               );
                             },
                             child: SingleChildScrollView(
                               child: ListTile(
-                                title: Text(namaRak),
+                                title: Text(namaKategori),
                               ),
                             ),
                           );
