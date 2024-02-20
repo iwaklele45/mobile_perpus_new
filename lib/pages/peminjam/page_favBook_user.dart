@@ -48,13 +48,13 @@ class _PageFavBookState extends State<PageFavBook> {
     try {
       if (user != null) {
         QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('favBook')
-            .where('id user fav', isEqualTo: user.uid)
+            .collection('koleksiBuku')
+            .where('idUser', isEqualTo: user.uid)
             .get();
 
         if (querySnapshot.docs.isNotEmpty) {
           judulBukuFav = querySnapshot.docs
-              .map((document) => document['judul buku'].toString())
+              .map((document) => document['judulBukuKoleksi'].toString())
               .toList();
 
           print('Favorite Book IDs: $judulBukuFav');
@@ -95,7 +95,7 @@ class _PageFavBookState extends State<PageFavBook> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Books Favorite')),
+      appBar: AppBar(title: const Text('Semua Koleksi Buku')),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Column(
@@ -152,8 +152,7 @@ class _PageFavBookState extends State<PageFavBook> {
                     List<DocumentSnapshot> filteredList =
                         bookList.where((document) {
                       var bookData = document.data() as Map<String, dynamic>;
-                      var author =
-                          bookData['pengarang'].toString().toLowerCase();
+                      var author = bookData['penulis'].toString().toLowerCase();
                       var title = bookData['judul'].toString().toLowerCase();
                       var searchQuery = _searchController.text.toLowerCase();
 
@@ -170,7 +169,7 @@ class _PageFavBookState extends State<PageFavBook> {
                           bookList.length;
                           var book =
                               bookList[index].data() as Map<String, dynamic>;
-                          var author = bookData['pengarang'];
+                          var author = bookData['penulis'];
                           var coverUrl = bookData['imageUrl'];
                           var titleBook = bookData['judul'];
 
@@ -201,7 +200,7 @@ class _PageFavBookState extends State<PageFavBook> {
                                     child: ListTile(
                                       title: Text(titleBook),
                                       subtitle: Text(
-                                        'Pengarang: $author',
+                                        'Penulis: $author',
                                         style: TextStyle(
                                           fontSize: 15,
                                         ),

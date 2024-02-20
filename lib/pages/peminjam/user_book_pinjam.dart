@@ -33,7 +33,7 @@ class _PinjamBukuState extends State<PinjamBuku> {
             .get();
 
         setState(() {
-          userName = userSnapshot['full name'] ?? 'Username';
+          userName = userSnapshot['fullName'] ?? 'Username';
         });
       }
     } catch (e) {
@@ -52,9 +52,9 @@ class _PinjamBukuState extends State<PinjamBuku> {
   void _listenToFavBookChanges() {
     try {
       _favBookSubscription = FirebaseFirestore.instance
-          .collection('favBook')
-          .where('id book fav', isEqualTo: widget.buku.id)
-          .where('id user fav', isEqualTo: user?.uid)
+          .collection('koleksiBuku')
+          .where('idKoleksiBuku', isEqualTo: widget.buku.id)
+          .where('idUser', isEqualTo: user?.uid)
           .snapshots()
           .listen((QuerySnapshot snapshot) {
         setState(() {
@@ -80,13 +80,13 @@ class _PinjamBukuState extends State<PinjamBuku> {
 
   Future<void> _addFavoriteBook() async {
     try {
-      await FirebaseFirestore.instance.collection('favBook').add({
-        'id book fav': widget.buku.id,
-        'id user fav': user?.uid,
-        'judul buku': widget.buku['judul'],
+      await FirebaseFirestore.instance.collection('koleksiBuku').add({
+        'idKoleksiBuku': widget.buku.id,
+        'idUser': user?.uid,
+        'judulBukuKoleksi': widget.buku['judul'],
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Menambahkan buku ke favorite')),
+        const SnackBar(content: Text('Menambahkan buku ke koleksi')),
       );
     } catch (e) {
       print(e.toString());
@@ -96,16 +96,16 @@ class _PinjamBukuState extends State<PinjamBuku> {
   Future<void> _removeFavoriteBook() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
-          .collection('favBook')
-          .where('id book fav', isEqualTo: widget.buku.id)
-          .where('id user fav', isEqualTo: user?.uid)
+          .collection('koleksiBuku')
+          .where('idKoleksiBuku', isEqualTo: widget.buku.id)
+          .where('idUser', isEqualTo: user?.uid)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         var documentReference = querySnapshot.docs.first.reference;
         await documentReference.delete();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Menghapus buku dari favorite')),
+          const SnackBar(content: Text('Menghapus buku dari koleksi')),
         );
         Navigator.pop(context);
       } else {
@@ -120,8 +120,8 @@ class _PinjamBukuState extends State<PinjamBuku> {
     try {
       var querySnapshot = await FirebaseFirestore.instance
           .collection('favBook')
-          .where('id book fav', isEqualTo: widget.buku.id)
-          .where('id user fav', isEqualTo: user?.uid)
+          .where('idKoleksiBuku', isEqualTo: widget.buku.id)
+          .where('idUser', isEqualTo: user?.uid)
           .get();
 
       setState(() {
@@ -360,7 +360,7 @@ class _PinjamBukuState extends State<PinjamBuku> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'By : ' + widget.buku['pengarang'],
+                              'By : ' + widget.buku['penulis'],
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -372,7 +372,7 @@ class _PinjamBukuState extends State<PinjamBuku> {
                               height: 5,
                             ),
                             Text(
-                              'Rak Buku : ' + widget.buku['rak'],
+                              'Kategori Buku : ' + widget.buku['kategori'],
                               style: const TextStyle(
                                 fontSize: 15.0,
                                 fontWeight: FontWeight.w400,
@@ -412,25 +412,6 @@ class _PinjamBukuState extends State<PinjamBuku> {
                     Text(widget.buku['sinopsis']),
                     const SizedBox(
                       height: 10,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 60, 57, 57),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        child: Text(
-                          widget.buku['genre'],
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 ),

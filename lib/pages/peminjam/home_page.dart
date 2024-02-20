@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_perpus/core/assets/assets.gen.dart';
 import 'package:mobile_perpus/core/constrant/banner_slider.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
+import 'package:mobile_perpus/core/constrant/search_field.dart';
 import 'package:mobile_perpus/pages/loginPage/login_page.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book_genre.dart';
@@ -101,8 +102,8 @@ class _HomePageState extends State<HomePage> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       _favBookSubscription = FirebaseFirestore.instance
-          .collection('favBook')
-          .where('id user fav', isEqualTo: user.uid)
+          .collection('koleksiBuku')
+          .where('idUser', isEqualTo: user.uid)
           .snapshots()
           .listen((QuerySnapshot snapshot) {
         setState(() {
@@ -163,6 +164,7 @@ class _HomePageState extends State<HomePage> {
         },
         indicatorColor: Colors.transparent,
         selectedIndex: currentPageIndex,
+        backgroundColor: Colors.white,
         destinations: <Widget>[
           NavigationDestination(
             selectedIcon: Assets.icons.icon1.svg(
@@ -179,20 +181,18 @@ class _HomePageState extends State<HomePage> {
             label: 'EXPLORE',
           ),
           NavigationDestination(
-            selectedIcon: Icon(
-              Icons.bookmark_add,
-              color: Colors.white,
+            selectedIcon: Assets.icons.group723.svg(
+              color: AppColors.mainColor,
             ),
-            icon: Icon(Icons.bookmark_added_outlined),
-            label: 'Dipinjam',
+            icon: Assets.icons.group723.svg(),
+            label: 'BORROW',
           ),
           NavigationDestination(
-            selectedIcon: Icon(
-              Icons.settings,
-              color: Colors.white,
+            selectedIcon: Assets.icons.icon.svg(
+              color: AppColors.mainColor,
             ),
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Assets.icons.icon.svg(),
+            label: 'ACCOUNT',
           ),
         ],
       ),
@@ -337,7 +337,7 @@ class _HomePageState extends State<HomePage> {
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('buku')
-                          .where('stok buku')
+                          .where('stokBuku')
                           .orderBy('judul', descending: false)
                           .limit(3)
                           .snapshots(),
@@ -540,46 +540,30 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+        // Explore Page
         Column(
           children: [
             const SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.grey[200],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    controller: searchController,
-                    style: GoogleFonts.inter(),
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Search',
-                      hintStyle: GoogleFonts.inter(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          searchController.clear();
-                          setState(() {});
-                        },
-                        child: const Icon(Icons.clear),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              child: TextFieldSearch(
+                  label: 'Search',
+                  suffixIcon: GestureDetector(
+                      onTap: () {
+                        searchController.clear();
+                        setState(() {});
+                      },
+                      child: Icon(Icons.clear)),
+                  controller: searchController,
+                  icon: Assets.icons.search.svg(
+                    color: AppColors.mainColor,
+                  )),
             ),
             const SizedBox(height: 10),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('genre')
+                    .collection('kategori')
                     .orderBy('nama', descending: false)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -641,8 +625,25 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+
+        //  BORROW PAGE
         Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: TextFieldSearch(
+                  label: 'Search',
+                  suffixIcon: GestureDetector(
+                      onTap: () {
+                        searchController.clear();
+                        setState(() {});
+                      },
+                      child: Icon(Icons.clear)),
+                  controller: searchController,
+                  icon: Assets.icons.search.svg(
+                    color: AppColors.mainColor,
+                  )),
+            ),
             const SizedBox(height: 5),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
@@ -813,6 +814,8 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+
+        // ACCOUNT PAGE
         Center(
           child: Column(
             children: [

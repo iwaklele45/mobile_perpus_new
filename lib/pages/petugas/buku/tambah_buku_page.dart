@@ -72,7 +72,6 @@ class _TambahBukuState extends State<TambahBuku> {
           'stokBuku': int.parse(_stokBuku.text), // Ubah ke tipe data int
           'imageUrl': imageUrl,
           'kategori': selectedGenre,
-          'statusBuku': 'tidak dipinjam',
         });
         _judulBukuController.clear();
         _penulisBukuController.clear();

@@ -20,7 +20,7 @@ class _PageUserWishListState extends State<PageUserWishList> {
             .doc(user.uid)
             .get();
         setState(() {
-          userName = userSnapshot['full name'] ?? '';
+          userName = userSnapshot['fullName'] ?? '';
         });
       }
     } catch (e) {
