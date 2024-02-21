@@ -2,18 +2,20 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_perpus/core/assets/assets.gen.dart';
 import 'package:mobile_perpus/core/constrant/banner_slider.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:mobile_perpus/core/constrant/search_field.dart';
+import 'package:mobile_perpus/core/constrant/settings_items.dart';
 import 'package:mobile_perpus/pages/loginPage/login_page.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book_genre.dart';
 import 'package:mobile_perpus/pages/peminjam/change_profile_user.dart';
 import 'package:mobile_perpus/pages/peminjam/history_peminjaman.dart';
-import 'package:mobile_perpus/pages/peminjam/page_favBook_user.dart';
+import 'package:mobile_perpus/pages/peminjam/page_semua_koleksi.dart';
 import 'package:mobile_perpus/pages/peminjam/semua_koleksi_buku.dart';
 import 'package:mobile_perpus/pages/peminjam/user_book_pinjam.dart';
 
@@ -25,7 +27,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String userName = '';
+  String fullName = '';
+  String email = '';
 
   StreamSubscription<QuerySnapshot>? _favBookSubscription;
   int dendaUser = 0;
@@ -58,7 +61,8 @@ class _HomePageState extends State<HomePage> {
         userDocRef.snapshots().listen((DocumentSnapshot userSnapshot) {
           if (userSnapshot.exists) {
             setState(() {
-              userName = userSnapshot['username'] ?? '';
+              fullName = userSnapshot['namaLengkap'] ?? '';
+              email = userSnapshot['email'];
             });
           }
         });
@@ -159,7 +163,7 @@ class _HomePageState extends State<HomePage> {
               )),
         ],
       ),
-      backgroundColor: AppColors.whiteColor,
+      // backgroundColor: AppColors.whiteColor,
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
@@ -212,13 +216,21 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: [
                       Text(
-                        'Selamat Datang $userName !',
+                        'Selamat Datang $fullName !',
                         style: GoogleFonts.inter(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                           color: const Color.fromARGB(255, 60, 57, 57),
                         ),
                       ),
+                      // Text(
+                      //   'Selamat Datang $fullName !',
+                      //   style: GoogleFonts.inter(
+                      //     fontSize: 17,
+                      //     fontWeight: FontWeight.w600,
+                      //     color: const Color.fromARGB(255, 60, 57, 57),
+                      //   ),
+                      // ),
                     ],
                   ),
                   const SizedBox(
@@ -317,7 +329,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   Row(
@@ -396,13 +408,13 @@ class _HomePageState extends State<HomePage> {
                                         height: 145,
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 2,
                                     ),
                                     Row(
                                       children: [
                                         Text('$author'),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 23,
                                         ),
                                         Text(
@@ -556,29 +568,21 @@ class _HomePageState extends State<HomePage> {
         // Explore Page
         Column(
           children: [
-            const SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFieldSearch(
-                      label: 'Search',
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          searchController.clear();
-                          setState(() {});
-                        },
-                        child: Icon(Icons.clear),
-                      ),
-                      controller: searchController,
-                      icon: Assets.icons.search.svg(
-                        color: AppColors.mainColor,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                ],
+              child: TextFieldSearch(
+                label: 'Search',
+                suffixIcon: GestureDetector(
+                  onTap: () {
+                    searchController.clear();
+                    setState(() {});
+                  },
+                  child: const Icon(Icons.clear),
+                ),
+                controller: searchController,
+                icon: Assets.icons.search.svg(
+                  color: AppColors.mainColor,
+                ),
               ),
             ),
             const SizedBox(
@@ -735,7 +739,7 @@ class _HomePageState extends State<HomePage> {
                         searchController.clear();
                         setState(() {});
                       },
-                      child: Icon(Icons.clear)),
+                      child: const Icon(Icons.clear)),
                   controller: searchController,
                   icon: Assets.icons.search.svg(
                     color: AppColors.mainColor,
@@ -911,178 +915,234 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-
         // ACCOUNT PAGE
         Center(
-          child: Column(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Color.fromARGB(255, 203, 203, 203),
-                      width: 2.0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Settings',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 30,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 25.0,
-                    right: 25.0,
-                    bottom: 10.0,
-                  ),
+                const SizedBox(
+                  height: 40,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'Account',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const UbahProfile()));
+                    print('haha');
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          const Icon(
-                            Icons.account_circle,
-                            size: 55,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            userName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 17,
+                          Container(
+                            width: 80,
+                            height: 80,
+                            child: Icon(
+                              Icons.account_circle,
+                              size: 90,
+                              color: AppColors.twoWhiteColor,
                             ),
                           ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                fullName,
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 18.0),
+                                child: Text(
+                                  email,
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios_sharp,
+                        size: 15,
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.mainColor,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'Settings',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                ItemSetting(
+                  function: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const HistoryPeminjamanUser()));
+                  },
+                  icon: const Icon(Icons.history),
+                  label: 'History',
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                ItemSetting(
+                  function: () {},
+                  icon: const Icon(Icons.favorite_border),
+                  label: 'Koleksi Buku',
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                ItemSetting(
+                  function: () {},
+                  icon: const Icon(Icons.reviews_outlined),
+                  label: 'Review Buku',
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                GestureDetector(
+                  onTap: () {},
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                              width: 55,
+                              height: 55,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: AppColors.twoWhiteColor,
+                              ),
+                              child: Icon(Icons.attach_money_sharp)),
                           const SizedBox(
-                            width: 10,
+                            width: 20,
                           ),
                           Text(
-                            'Denda : ' + dendaUser.toString(),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                                color: Colors.red),
+                            'Denda',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                            ),
                           ),
                         ],
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const UbahProfile()));
-                        },
-                        child: const Text(
-                          'UBAH PROFIL',
-                          style: TextStyle(
-                            color: Colors.pink,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      Text(
+                        'Rp ${dendaUser.toString()}',
+                        style: GoogleFonts.inter(
+                          color: AppColors.redColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                         ),
                       )
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 25.0,
+                const SizedBox(
+                  height: 35,
                 ),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const HistoryPeminjamanUser()));
-                      },
-                      child: const SizedBox(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Padding(
+                  padding: EdgeInsets.only(left: 18.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const LoginPage()));
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.settings_backup_restore_rounded,
-                                  size: 30,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'History',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Cek history buku yang dipinjam',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 15,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    const Divider(
-                      color: Color.fromARGB(255, 203, 203, 203),
-                      height: 2.0,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 5.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          FirebaseAuth.instance.signOut();
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()));
-                        },
-                        child: const Row(
-                          children: [
-                            Icon(
+                            Container(
+                                child: Icon(
                               Icons.logout,
-                              size: 25,
-                              color: Colors.deepOrange,
-                            ),
-                            SizedBox(
-                              width: 10,
+                              color: AppColors.redColor,
+                            )),
+                            const SizedBox(
+                              width: 32,
                             ),
                             Text(
-                              'Keluar',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Colors.deepOrange,
+                              'Logout',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 20,
+                                color: AppColors.redColor,
                               ),
-                            )
+                            ),
                           ],
                         ),
-                      ),
-                    )
-                  ],
+                        Icon(
+                          Icons.arrow_forward_ios_sharp,
+                          size: 15,
+                          color: AppColors.redColor,
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ][currentPageIndex],

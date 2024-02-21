@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_otp/email_otp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_perpus/core/assets/assets.gen.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
@@ -198,6 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _emailControler,
                   label: 'Email',
                   icon: Assets.icons.icRoundAlternateEmail1.svg(height: 22),
+                  TextInputType: TextInputType.emailAddress,
                 ),
                 const SizedBox(
                   height: 15,
@@ -207,6 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                   label: 'Password',
                   icon: Assets.icons.icRoundAlternateEmail3.svg(height: 22),
                   obscureText: _obscureText,
+                  TextInputType: TextInputType.visiblePassword,
                   suffixIcon: GestureDetector(
                     onTap: () {
                       setState(() {

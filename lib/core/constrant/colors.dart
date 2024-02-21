@@ -16,4 +16,6 @@ class AppColors {
   static Color mainColor = HexColor('#393939');
   static Color whiteColor = HexColor('#FFFFFF');
   static Color secontWhiteColor = HexColor('#929292');
+  static Color twoWhiteColor = HexColor('#D9D9D9');
+  static Color redColor = HexColor('#FF0000');
 }

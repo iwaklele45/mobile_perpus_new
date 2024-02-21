@@ -203,6 +203,7 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFieldSection(
                 controller: _usernameController,
                 label: 'Username',
+                TextInputType: TextInputType.text,
                 icon: Assets.icons.icRoundAlternateEmail.svg(height: 22),
               ),
               const SizedBox(
@@ -211,6 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFieldSection(
                 controller: _fullNameController,
                 label: 'Full Name',
+                TextInputType: TextInputType.text,
                 icon: Assets.icons.icRoundAlternateEmail.svg(height: 22),
               ),
               const SizedBox(
@@ -219,6 +221,7 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFieldSection(
                 controller: _emailControler,
                 label: 'Email',
+                TextInputType: TextInputType.emailAddress,
                 icon: Assets.icons.icRoundAlternateEmail1.svg(height: 22),
               ),
               const SizedBox(
@@ -227,6 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFieldSection(
                 controller: _addressController,
                 label: 'Address',
+                TextInputType: TextInputType.text,
                 icon: Assets.icons.icRoundAlternateEmail2.svg(height: 22),
               ),
               const SizedBox(
@@ -235,6 +239,7 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFieldSection(
                 controller: _passwordController,
                 label: 'Password',
+                TextInputType: TextInputType.visiblePassword,
                 icon: Assets.icons.icRoundAlternateEmail3.svg(height: 22),
                 obscureText: _obscureText,
                 suffixIcon: GestureDetector(

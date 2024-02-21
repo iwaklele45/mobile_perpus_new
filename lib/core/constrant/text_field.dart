@@ -7,6 +7,7 @@ class TextFieldSection extends StatelessWidget {
   final Widget icon;
   final bool obscureText;
   final Widget? suffixIcon;
+  final TextInputType;
   final controller;
 
   const TextFieldSection({
@@ -16,6 +17,7 @@ class TextFieldSection extends StatelessWidget {
     required this.icon,
     this.obscureText = false,
     this.suffixIcon,
+    this.TextInputType,
   }) : super(key: key);
 
   @override
@@ -45,7 +47,7 @@ class TextFieldSection extends StatelessWidget {
             child: TextField(
               controller: controller,
               cursorHeight: 25,
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType,
               obscureText: obscureText,
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w500,

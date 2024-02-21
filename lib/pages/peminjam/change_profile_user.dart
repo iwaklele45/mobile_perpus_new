@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 
 class UbahProfile extends StatefulWidget {
   const UbahProfile({super.key});
@@ -52,38 +55,53 @@ class _UbahProfileState extends State<UbahProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(
-            Icons.arrow_back_ios_sharp,
-            size: 15.0,
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.twoWhiteColor,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.mainColor,
+                ),
+              ),
+            ),
           ),
-        ),
-        title: const Text(
-          'PROFIL SAYA',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
+          title: Text(
+            'Edit Profile',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+          )),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Padding(
+            Column(
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  child: Icon(
+                    Icons.account_circle,
+                    size: 90,
+                    color: AppColors.twoWhiteColor,
+                  ),
+                ),
+              ],
+            ),
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'NAMA ANDA',
-                    style: TextStyle(
-                      fontSize: 11,
-                      letterSpacing: 2.0,
-                      fontWeight: FontWeight.w700,
+                    'Username',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
                     ),
                   )
                 ],
@@ -96,11 +114,15 @@ class _UbahProfileState extends State<UbahProfile> {
               padding: const EdgeInsets.symmetric(horizontal: 25.0),
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 203, 203, 203)),
-                  borderRadius: BorderRadius.circular(
-                    5,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.mainColor,
+                      width: 1.0,
+                    ),
                   ),
+                  // borderRadius: BorderRadius.circular(
+                  //   5,
+                  // ),
                   color: Colors.white,
                 ),
                 child: Padding(
@@ -111,7 +133,7 @@ class _UbahProfileState extends State<UbahProfile> {
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Nama',
+                      hintText: 'Username',
                       hintStyle: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
                       ),
@@ -123,17 +145,15 @@ class _UbahProfileState extends State<UbahProfile> {
             const SizedBox(
               height: 10.0,
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ALAMAT ANDA',
-                    style: TextStyle(
-                      fontSize: 11,
-                      letterSpacing: 2.0,
-                      fontWeight: FontWeight.w700,
+                    'Nama Lengkap',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
                     ),
                   )
                 ],
@@ -146,19 +166,127 @@ class _UbahProfileState extends State<UbahProfile> {
               padding: const EdgeInsets.symmetric(horizontal: 25.0),
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 203, 203, 203)),
-                  borderRadius: BorderRadius.circular(
-                    5,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.mainColor,
+                      width: 1.0,
+                    ),
                   ),
+                  // borderRadius: BorderRadius.circular(
+                  //   5,
+                  // ),
                   color: Colors.white,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: TextField(
-                    controller: _addressController,
+                    controller: _fullNameController,
                     style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.streetAddress,
+                    keyboardType: TextInputType.name,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Nama Lengkap',
+                      hintStyle: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Email',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.mainColor,
+                      width: 1.0,
+                    ),
+                  ),
+                  // borderRadius: BorderRadius.circular(
+                  //   5,
+                  // ),
+                  color: Colors.white,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: TextField(
+                    controller: _fullNameController,
+                    style: GoogleFonts.poppins(),
+                    keyboardType: TextInputType.name,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Email',
+                      hintStyle: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Alamat',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.mainColor,
+                      width: 1.0,
+                    ),
+                  ),
+                  // borderRadius: BorderRadius.circular(
+                  //   5,
+                  // ),
+                  color: Colors.white,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: TextField(
+                    controller: _fullNameController,
+                    style: GoogleFonts.poppins(),
+                    keyboardType: TextInputType.name,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Alamat',
@@ -173,128 +301,22 @@ class _UbahProfileState extends State<UbahProfile> {
             const SizedBox(
               height: 10.0,
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'NOMOR ANDA',
-                    style: TextStyle(
-                      fontSize: 11,
-                      letterSpacing: 2.0,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 203, 203, 203)),
-                  borderRadius: BorderRadius.circular(
-                    5,
-                  ),
-                  color: Colors.white,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    controller: _phoneController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Nomor Telepon',
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'EMAIL ANDA',
-                    style: TextStyle(
-                      fontSize: 11,
-                      letterSpacing: 2.0,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 203, 203, 203)),
-                  borderRadius: BorderRadius.circular(
-                    5,
-                  ),
-                  color: Colors.white,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: TextField(
-                    enabled: false,
-                    controller: _emailControler,
-                    style: GoogleFonts.poppins(),
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Email',
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 25,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(255, 60, 57, 57),
-                    ),
-                  ),
-                  onPressed: () {
-                    saveChanges();
-                  },
-                  child: Text(
-                    'SIMPAN',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            )
           ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // _showDateDialog();
+          // print(user?.uid);
+        },
+        backgroundColor: AppColors.twoWhiteColor,
+        label: Text(
+          'Simpan',
+          style: GoogleFonts.inter(
+            color: AppColors.mainColor,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

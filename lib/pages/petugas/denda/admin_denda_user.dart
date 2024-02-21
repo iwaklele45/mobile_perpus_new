@@ -103,8 +103,8 @@ class _PageDendaState extends State<PageDenda> {
                               _showPaymentDialog(context, namaUser, denda);
                             },
                             child: ListTile(
-                              title: Text(namaUser),
-                              subtitle: Text('Denda: $denda'),
+                              title: Text('${index + 1}.$namaUser'),
+                              subtitle: Text('        Denda: $denda'),
                             ),
                           );
                         },

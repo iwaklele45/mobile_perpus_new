@@ -5,7 +5,7 @@ import 'package:mobile_perpus/core/assets/assets.gen.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:mobile_perpus/core/constrant/search_field.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book_genre.dart';
-import 'package:mobile_perpus/pages/peminjam/page_favBook_user.dart';
+import 'package:mobile_perpus/pages/peminjam/page_semua_koleksi.dart';
 
 class AllKoleksiBook extends StatefulWidget {
   const AllKoleksiBook({super.key});
