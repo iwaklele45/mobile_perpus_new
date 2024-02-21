@@ -37,7 +37,7 @@ class ItemSetting extends StatelessWidget {
                 label,
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
-                  fontSize: 20,
+                  fontSize: 17,
                 ),
               ),
             ],

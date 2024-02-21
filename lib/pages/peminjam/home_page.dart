@@ -37,8 +37,10 @@ class _HomePageState extends State<HomePage> {
   TextEditingController searchController = TextEditingController();
   late List<DocumentSnapshot> genreList;
   final List<String> banners1 = [
-    Assets.images.banner1.path,
-    Assets.images.banner2.path,
+    // Assets.images.banner1.path,
+    // Assets.images.banner2.path,
+    Assets.images.perpusbanner.path,
+    Assets.images.perpusbanner2.path,
   ];
   final List<String> banners2 = [
     Assets.images.banner2.path,
@@ -223,14 +225,6 @@ class _HomePageState extends State<HomePage> {
                           color: const Color.fromARGB(255, 60, 57, 57),
                         ),
                       ),
-                      // Text(
-                      //   'Selamat Datang $fullName !',
-                      //   style: GoogleFonts.inter(
-                      //     fontSize: 17,
-                      //     fontWeight: FontWeight.w600,
-                      //     color: const Color.fromARGB(255, 60, 57, 57),
-                      //   ),
-                      // ),
                     ],
                   ),
                   const SizedBox(
@@ -295,10 +289,8 @@ class _HomePageState extends State<HomePage> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => PinjamBuku(
-                                      buku: categories![index],
-                                    ),
-                                  ),
+                                      builder: (context) =>
+                                          const AllKoleksiBook()),
                                 );
                               },
                               child: Padding(
@@ -356,6 +348,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(
+                    height: 5,
                   ),
                   SizedBox(
                     height: 190,
@@ -659,70 +654,74 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 10),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('kategori')
-                    .orderBy('nama', descending: false)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    genreList = snapshot.data!.docs;
+            Column(
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  height: 400,
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: selectedKategori == '0'
+                        ? FirebaseFirestore.instance
+                            .collection('buku')
+                            .where('stokBuku')
+                            .orderBy('judul', descending: false)
+                            .snapshots()
+                        : FirebaseFirestore.instance
+                            .collection('buku')
+                            .where('kategori', isEqualTo: selectedKategori)
+                            .where('stokBuku')
+                            .orderBy('judul', descending: false)
+                            .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-                    List<DocumentSnapshot> filteredList =
-                        genreList.where((document) {
-                      var nameKategoriBuku =
-                          document.data() as Map<String, dynamic>;
-                      var namaKategori =
-                          nameKategoriBuku['nama'].toString().toLowerCase();
-                      var searchQuery = searchController.text.toLowerCase();
+                      var books = snapshot.data?.docs;
 
-                      return namaKategori.contains(searchQuery);
-                    }).toList();
-
-                    if (filteredList.isNotEmpty) {
-                      return ListView.builder(
-                        itemCount: filteredList.length,
+                      return GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3, // Menampilkan 3 item per baris
+                        ),
+                        itemCount: books?.length,
                         itemBuilder: (context, index) {
-                          var nameKategoriBuku = filteredList[index].data()
-                              as Map<String, dynamic>;
-                          var namaKategori = nameKategoriBuku['nama'];
+                          var book =
+                              books?[index].data() as Map<String, dynamic>;
+                          var imageUrl = book['imageUrl'] ?? '';
 
                           return GestureDetector(
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => AllGenreBukuPage(
-                                    genreName: namaKategori,
+                                  builder: (context) => PinjamBuku(
+                                    buku: books![index],
                                   ),
                                 ),
                               );
                             },
-                            child: SingleChildScrollView(
-                              child: ListTile(
-                                title: Text(namaKategori),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  imageUrl,
+                                  width: 200,
+                                  height: 345,
+                                  // Memastikan gambar menutupi ukuran yang diberikan
+                                ),
                               ),
                             ),
                           );
                         },
                       );
-                    } else {
-                      return const Center(
-                        child: Text(
-                          'Tidak ada genre buku',
-                          style: TextStyle(
-                            fontSize: 15,
-                          ),
-                        ),
-                      );
-                    }
-                  }
-                },
-              ),
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -917,197 +916,44 @@ class _HomePageState extends State<HomePage> {
         ),
         // ACCOUNT PAGE
         Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'Settings',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 30,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 40,
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'Account',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const UbahProfile()));
-                    print('haha');
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            child: Icon(
-                              Icons.account_circle,
-                              size: 90,
-                              color: AppColors.twoWhiteColor,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                fullName,
-                                style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 18.0),
-                                child: Text(
-                                  email,
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios_sharp,
-                        size: 15,
-                      )
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppColors.mainColor,
-                        width: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'Settings',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                ItemSetting(
-                  function: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const HistoryPeminjamanUser()));
-                  },
-                  icon: const Icon(Icons.history),
-                  label: 'History',
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                ItemSetting(
-                  function: () {},
-                  icon: const Icon(Icons.favorite_border),
-                  label: 'Koleksi Buku',
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                ItemSetting(
-                  function: () {},
-                  icon: const Icon(Icons.reviews_outlined),
-                  label: 'Review Buku',
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                              width: 55,
-                              height: 55,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                color: AppColors.twoWhiteColor,
-                              ),
-                              child: Icon(Icons.attach_money_sharp)),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Text(
-                            'Denda',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
                       Text(
-                        'Rp ${dendaUser.toString()}',
+                        'Settings',
                         style: GoogleFonts.inter(
-                          color: AppColors.redColor,
-                          fontSize: 20,
                           fontWeight: FontWeight.w600,
+                          fontSize: 30,
                         ),
-                      )
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 35,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 18.0),
-                  child: GestureDetector(
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Account',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
                     onTap: () {
-                      FirebaseAuth.instance.signOut();
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const LoginPage()));
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const UbahProfile()));
+                      print('haha');
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1115,33 +961,195 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           children: [
                             Container(
-                                child: Icon(
-                              Icons.logout,
-                              color: AppColors.redColor,
-                            )),
-                            const SizedBox(
-                              width: 32,
-                            ),
-                            Text(
-                              'Logout',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                                color: AppColors.redColor,
+                              width: 80,
+                              height: 80,
+                              child: Icon(
+                                Icons.account_circle,
+                                size: 90,
+                                color: AppColors.twoWhiteColor,
                               ),
                             ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    fullName,
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  Text(
+                                    email,
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
                           ],
                         ),
-                        Icon(
+                        const Icon(
                           Icons.arrow_forward_ios_sharp,
                           size: 15,
-                          color: AppColors.redColor,
                         )
                       ],
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.mainColor,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Settings',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  ItemSetting(
+                    function: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const HistoryPeminjamanUser()));
+                    },
+                    icon: const Icon(Icons.history),
+                    label: 'History',
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  ItemSetting(
+                    function: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const PageFavBook()));
+                    },
+                    icon: const Icon(Icons.favorite_border),
+                    label: 'Koleksi Buku',
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  ItemSetting(
+                    function: () {},
+                    icon: const Icon(Icons.reviews_outlined),
+                    label: 'Review Buku',
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                                width: 55,
+                                height: 55,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: AppColors.twoWhiteColor,
+                                ),
+                                child: Icon(Icons.attach_money_sharp)),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Text(
+                              'Denda',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'Rp ${dendaUser.toString()}',
+                          style: GoogleFonts.inter(
+                            color: AppColors.redColor,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 35,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 18.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => const LoginPage()));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                  child: Icon(
+                                Icons.logout,
+                                color: AppColors.redColor,
+                              )),
+                              const SizedBox(
+                                width: 32,
+                              ),
+                              Text(
+                                'Logout',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                  color: AppColors.redColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios_sharp,
+                            size: 15,
+                            color: AppColors.redColor,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 
 const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
 
@@ -434,7 +435,7 @@ class _PinjamBukuState extends State<PinjamBuku> {
           _showDateDialog();
           print(user?.uid);
         },
-        backgroundColor: const Color.fromARGB(255, 60, 57, 57),
+        backgroundColor: AppColors.mainColor,
         label: const Text(
           'Pinjam Buku',
           style: TextStyle(

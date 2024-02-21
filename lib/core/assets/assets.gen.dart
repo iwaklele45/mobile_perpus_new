@@ -132,6 +132,14 @@ class $AssetsImagesGen {
   /// File path: assets/images/banner2.png
   AssetGenImage get banner2 => const AssetGenImage('assets/images/banner2.png');
 
+  /// File path: assets/images/bannerperpus.svg
+  SvgGenImage get bannerperpus =>
+      const SvgGenImage('assets/images/bannerperpus.svg');
+
+  /// File path: assets/images/bannerperpus2.svg
+  SvgGenImage get bannerperpus2 =>
+      const SvgGenImage('assets/images/bannerperpus2.svg');
+
   /// File path: assets/images/clock.png
   AssetGenImage get clock => const AssetGenImage('assets/images/clock.png');
 
@@ -158,6 +166,14 @@ class $AssetsImagesGen {
   /// File path: assets/images/oops.png
   AssetGenImage get oops => const AssetGenImage('assets/images/oops.png');
 
+  /// File path: assets/images/perpusbanner.png
+  AssetGenImage get perpusbanner =>
+      const AssetGenImage('assets/images/perpusbanner.png');
+
+  /// File path: assets/images/perpusbanner2.png
+  AssetGenImage get perpusbanner2 =>
+      const AssetGenImage('assets/images/perpusbanner2.png');
+
   /// File path: assets/images/process-order.png
   AssetGenImage get processOrder =>
       const AssetGenImage('assets/images/process-order.png');
@@ -167,10 +183,12 @@ class $AssetsImagesGen {
       const AssetGenImage('assets/images/profile-bg3.jpg');
 
   /// List of all assets
-  List<AssetGenImage> get values => [
+  List<dynamic> get values => [
         background,
         banner1,
         banner2,
+        bannerperpus,
+        bannerperpus2,
         clock,
         google,
         light1,
@@ -179,6 +197,8 @@ class $AssetsImagesGen {
         logomoperr,
         moper,
         oops,
+        perpusbanner,
+        perpusbanner2,
         processOrder,
         profileBg3
       ];
