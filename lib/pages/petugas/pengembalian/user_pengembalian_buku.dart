@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
 
 class UserPengembalianBuku extends StatefulWidget {
@@ -70,11 +71,15 @@ class _UserPengembalianBukuState extends State<UserPengembalianBuku> {
                       bookData['tanggal peminjaman'].toDate();
                   var tanggalPengembalian =
                       bookData['tanggal pengembalian'].toDate();
+                  String formattedDatePinjam =
+                      DateFormat.yMMMEd().format(tanggalPeminjaman);
+                  String formattedDatePengembalian =
+                      DateFormat.yMMMEd().format(tanggalPengembalian);
 
                   return ListTile(
                     title: Text('${index + 1}. $judulBuku'),
                     subtitle: Text(
-                      'Tanggal Peminjaman: $tanggalPeminjaman\nTanggal Pengembalian: $tanggalPengembalian',
+                      'Tanggal Peminjaman: $formattedDatePinjam\nTanggal Pengembalian: $formattedDatePengembalian',
                       style: const TextStyle(fontSize: 13),
                     ),
                     onTap: () {

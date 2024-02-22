@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,8 +15,9 @@ class UlasanPeminjam extends StatefulWidget {
 }
 
 class _UlasanPeminjamState extends State<UlasanPeminjam> {
-  late List<DocumentSnapshot> bookList;
+  late List<DocumentSnapshot> reviewList;
   final TextEditingController _searchController = TextEditingController();
+  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -75,8 +77,8 @@ class _UlasanPeminjamState extends State<UlasanPeminjam> {
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('buku')
-                    .orderBy('judul', descending: false)
+                    .collection('ulasan')
+                    .where('userId', isEqualTo: user?.uid)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -84,70 +86,50 @@ class _UlasanPeminjamState extends State<UlasanPeminjam> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else {
-                    bookList = snapshot.data!.docs;
+                    reviewList = snapshot.data!.docs;
 
                     List<DocumentSnapshot> filteredList =
-                        bookList.where((document) {
-                      var bookData = document.data() as Map<String, dynamic>;
-                      var author = bookData['penulis'].toString().toLowerCase();
-                      var title = bookData['judul'].toString().toLowerCase();
+                        reviewList.where((document) {
+                      var reviewData = document.data() as Map<String, dynamic>;
+                      var titleBook =
+                          reviewData['judul buku'].toString().toLowerCase();
+
                       var searchQuery = _searchController.text.toLowerCase();
 
-                      return author.contains(searchQuery) ||
-                          title.contains(searchQuery);
+                      return titleBook.contains(searchQuery);
                     }).toList();
 
                     if (filteredList.isNotEmpty) {
                       return ListView.builder(
                         itemCount: filteredList.length,
                         itemBuilder: (context, index) {
-                          var bookData = filteredList[index].data()
+                          var reviewData = filteredList[index].data()
                               as Map<String, dynamic>;
-                          bookList.length;
+                          reviewList.length;
                           var book =
-                              bookList[index].data() as Map<String, dynamic>;
-                          var author = bookData['penulis'];
-                          var coverUrl = bookData['imageUrl'];
-                          var titleBook = bookData['judul'];
-                          var year = bookData['tahun'];
+                              reviewList[index].data() as Map<String, dynamic>;
+                          var titleBook = reviewData['judul buku'];
+                          var review = reviewData['ulasan'];
+                          var rating = reviewData['rating'];
 
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PinjamBuku(
-                                    buku: bookList[index],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(5),
-                                    child: Image.network(
-                                      coverUrl,
-                                      width: 80,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: ListTile(
-                                      title: Text(titleBook),
-                                      subtitle: Text(
-                                        'Penulis: $author\nTahun : $year',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                        ),
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: ListTile(
+                                  title: Text('${index + 1}. $titleBook'),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0),
+                                    child: Text(
+                                      'Ulasan : $review\nRating : $rating\\9',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
                                       ),
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                            ],
                           );
                         },
                       );

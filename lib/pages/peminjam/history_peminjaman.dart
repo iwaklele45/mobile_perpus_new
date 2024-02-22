@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
 
 class HistoryPeminjamanUser extends StatefulWidget {
@@ -27,8 +28,8 @@ class _HistoryPeminjamanUserState extends State<HistoryPeminjamanUser> {
         QuerySnapshot loanSnapshot = await FirebaseFirestore.instance
             .collection('peminjaman')
             .where('id user', isEqualTo: user?.uid)
-            .where('status peminjaman', isEqualTo: 'selesai di review')
-            .get();
+            .where('status peminjaman',
+                whereIn: ['selesai di review', 'telah dikembalikan']).get();
 
         setState(() {
           loanHistory = loanSnapshot.docs;
@@ -43,28 +44,30 @@ class _HistoryPeminjamanUserState extends State<HistoryPeminjamanUser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          centerTitle: true,
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: AppColors.twoWhiteColor,
-                    borderRadius: BorderRadius.circular(10.0)),
-                child: Icon(
-                  Icons.arrow_back,
-                  color: AppColors.mainColor,
-                ),
+        centerTitle: true,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.twoWhiteColor,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Icon(
+                Icons.arrow_back,
+                color: AppColors.mainColor,
               ),
             ),
           ),
-          title: Text(
-            'History',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
-          )),
+        ),
+        title: Text(
+          'History',
+          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+        ),
+      ),
       body: loanHistory != null && loanHistory!.isNotEmpty
           ? ListView.builder(
               itemCount: loanHistory!.length,
@@ -79,24 +82,27 @@ class _HistoryPeminjamanUserState extends State<HistoryPeminjamanUser> {
                 Timestamp timePengembalian = tglPengembalian;
                 DateTime datePengembalian = timePengembalian.toDate();
 
+                // Format dates to display only date, month, and year
+                String formattedDatePinjam =
+                    DateFormat.yMMMEd().format(datePinjam);
+                String formattedDatePengembalian =
+                    DateFormat.yMMMEd().format(datePengembalian);
+
                 return ListTile(
                   title: Text('${index + 1}. $bookTitle'),
-
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Waktu Peminjaman: $datePinjam',
+                        'Tanggal Peminjaman: $formattedDatePinjam',
                         style: TextStyle(fontSize: 12),
                       ),
                       Text(
-                        'Waktu Pengembalian: $datePengembalian',
+                        'Tanggal Pengembalian: $formattedDatePengembalian',
                         style: TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
-
-                  // Add more details or customize the ListTile as needed
                 );
               },
             )

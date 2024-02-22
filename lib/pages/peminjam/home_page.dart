@@ -120,63 +120,81 @@ class _HomePageState extends State<HomePage> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (reviewController.text.isEmpty || ratingController.text.isEmpty) {
-      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kolom harus diisi semua')));
-    } else {
-      try {
-        QuerySnapshot<Map<String, dynamic>> snapshot =
-            await FirebaseFirestore.instance
-                .collection('peminjaman')
-                .where('id user', isEqualTo: user?.uid)
-                .where(
-                  'status peminjaman',
-                  isEqualTo: 'telah dikembalikan',
-                )
-                .get();
-        String idPeminjaman = snapshot.docs.first.id;
+        const SnackBar(content: Text('Kolom harus diisi semua')),
+      );
+      return;
+    }
 
-        DocumentSnapshot peminjaman = await FirebaseFirestore.instance
-            .collection('peminjaman')
-            .doc(idPeminjaman)
-            .get();
+    try {
+      final QuerySnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance
+              .collection('peminjaman')
+              .where('id user', isEqualTo: user?.uid)
+              .where('status peminjaman', isEqualTo: 'telah dikembalikan')
+              .get();
 
-        await FirebaseFirestore.instance.collection('ulasan').add({
-          'userId': user?.uid,
-          'judul buku': peminjaman['judul buku dipinjam'],
-          'bukuId': peminjaman['id buku dipinjam'],
-          'ulasan': reviewController.text,
-          'rating': ratingController.text,
-        });
-
-        var judulBuku = peminjaman['judul buku dipinjam'];
-        var updatePeminjaman =
-            FirebaseFirestore.instance.collection('peminjaman');
-
-        updatePeminjaman
-            .where('id user', isEqualTo: user?.uid)
-            .where('judul buku dipinjam', isEqualTo: judulBuku)
-            .get()
-            .then((querySnapshot) {
-          if (querySnapshot.docs.isNotEmpty) {
-            var documentId = querySnapshot.docs[0].id;
-
-            updatePeminjaman
-                .doc(documentId)
-                .update({'status peminjaman': 'selesai di review'});
-          } else {
-            print('error');
-          }
-        }).catchError((error) {
-          print('Error updating document: $error');
-        });
-
-        Navigator.pop(context);
+      if (snapshot.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ulasan Berhasil Terkirim')));
-      } catch (e) {
-        print(e.toString());
+          const SnackBar(
+              content: Text('Tidak ada peminjaman yang telah dikembalikan')),
+        );
+        return;
       }
+
+      final String idPeminjaman = snapshot.docs.first.id;
+      final DocumentSnapshot peminjaman = await FirebaseFirestore.instance
+          .collection('peminjaman')
+          .doc(idPeminjaman)
+          .get();
+
+      final String judulBuku = peminjaman['judul buku dipinjam'];
+
+      // Check if user has already reviewed the book
+      final QuerySnapshot<Map<String, dynamic>> existingReviewSnapshot =
+          await FirebaseFirestore.instance
+              .collection('ulasan')
+              .where('userId', isEqualTo: user?.uid)
+              .where('judul buku', isEqualTo: judulBuku)
+              .get();
+
+      if (existingReviewSnapshot.docs.isNotEmpty) {
+        Navigator.pop(context);
+        reviewController.clear();
+        ratingController.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Anda sudah memberikan ulasan untuk buku ini')),
+        );
+        return;
+      }
+
+      // Proceed with adding review if user hasn't reviewed the book before
+      await FirebaseFirestore.instance.collection('ulasan').add({
+        'userId': user?.uid,
+        'judul buku': judulBuku,
+        'bukuId': peminjaman['id buku dipinjam'],
+        'ulasan': reviewController.text,
+        'rating': ratingController.text,
+      });
+
+      // Update status of borrowing to 'selesai di review'
+      final CollectionReference<Map<String, dynamic>> updatePeminjaman =
+          FirebaseFirestore.instance.collection('peminjaman');
+
+      await updatePeminjaman
+          .doc(idPeminjaman)
+          .update({'status peminjaman': 'selesai di review'});
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ulasan Berhasil Terkirim')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error submitting review: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Terjadi kesalahan saat mengirim ulasan')),
+      );
     }
   }
 
@@ -932,115 +950,117 @@ class _HomePageState extends State<HomePage> {
                             }
                           }(),
                           onTap: () {
-                            if (isLongTitle) {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Judul Buku'),
-                                    content: SizedBox(
-                                      height: 120,
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(judulBukuDipinjam),
-                                            const SizedBox(
-                                              height: 10,
+                            print('haha');
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text('Judul Buku'),
+                                  content: SizedBox(
+                                    height: 120,
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            judulBukuDipinjam,
+                                            style: GoogleFonts.inter(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
                                             ),
-                                            () {
-                                              switch (statusPeminjaman) {
-                                                case 'telah dikembalikan':
-                                                  return const Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        'Selesai',
-                                                        style: TextStyle(
-                                                            color: Colors.green,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                      SizedBox(height: 10),
-                                                      Text(
-                                                          'Buku telah dikembalikan.'),
-                                                    ],
-                                                  );
-                                                case 'terkonfirmasi':
-                                                  return const Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        'Terkonfirmasi',
-                                                        style: TextStyle(
-                                                            color: Colors.green,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                      SizedBox(height: 10),
-                                                      Text(
-                                                          'Silahkan Pergi Ke Perpustakaan Untuk Menggambil Buku')
-                                                    ],
-                                                  );
-                                                default:
-                                                  return const Text(
-                                                    'Belum Terkonfirmasi',
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontWeight:
-                                                            FontWeight.w700),
-                                                  );
-                                              }
-                                            }(),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          () {
+                                            switch (statusPeminjaman) {
+                                              case 'telah dikembalikan':
+                                                return const Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Selesai',
+                                                      style: TextStyle(
+                                                          color: Colors.green,
+                                                          fontWeight:
+                                                              FontWeight.w700),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                        'Buku telah dikembalikan.'),
+                                                  ],
+                                                );
+                                              case 'terkonfirmasi':
+                                                return const Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Terkonfirmasi',
+                                                      style: TextStyle(
+                                                          color: Colors.green,
+                                                          fontWeight:
+                                                              FontWeight.w700),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                        'Silahkan Pergi Ke Perpustakaan Untuk Menggambil Buku')
+                                                  ],
+                                                );
+                                              default:
+                                                return const Text(
+                                                  'Belum Terkonfirmasi',
+                                                  style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                );
+                                            }
+                                          }(),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    actions: [
-                                      () {
-                                        switch (statusPeminjaman) {
-                                          case 'telah dikembalikan':
-                                            return Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                      showDialogReview();
-                                                    },
-                                                    child: const Text('Review'))
-                                              ],
-                                            );
+                                  ),
+                                  actions: [
+                                    () {
+                                      switch (statusPeminjaman) {
+                                        case 'telah dikembalikan':
+                                          return Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    showDialogReview();
+                                                  },
+                                                  child: const Text('Review'))
+                                            ],
+                                          );
 
-                                          default:
-                                            return const Text(
-                                              '',
-                                              style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontWeight: FontWeight.w700),
-                                            );
-                                        }
-                                      }(),
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('Tutup'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
+                                        default:
+                                          return const Text(
+                                            '',
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.w700),
+                                          );
+                                      }
+                                    }(),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Tutup'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            if (isLongTitle) {}
                           },
                         );
                       },
