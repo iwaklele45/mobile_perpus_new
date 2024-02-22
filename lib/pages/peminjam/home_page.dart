@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_perpus/core/assets/assets.gen.dart';
@@ -12,10 +11,10 @@ import 'package:mobile_perpus/core/constrant/search_field.dart';
 import 'package:mobile_perpus/core/constrant/settings_items.dart';
 import 'package:mobile_perpus/pages/loginPage/login_page.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book.dart';
-import 'package:mobile_perpus/pages/peminjam/all_book_genre.dart';
 import 'package:mobile_perpus/pages/peminjam/change_profile_user.dart';
 import 'package:mobile_perpus/pages/peminjam/history_peminjaman.dart';
 import 'package:mobile_perpus/pages/peminjam/page_semua_koleksi.dart';
+import 'package:mobile_perpus/pages/peminjam/page_ulasan_peminjam.dart';
 import 'package:mobile_perpus/pages/peminjam/semua_koleksi_buku.dart';
 import 'package:mobile_perpus/pages/peminjam/user_book_pinjam.dart';
 
@@ -35,10 +34,11 @@ class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
   User? user = FirebaseAuth.instance.currentUser;
   TextEditingController searchController = TextEditingController();
+  TextEditingController reviewController = TextEditingController();
+  TextEditingController ratingController = TextEditingController();
+
   late List<DocumentSnapshot> genreList;
   final List<String> banners1 = [
-    // Assets.images.banner1.path,
-    // Assets.images.banner2.path,
     Assets.images.perpusbanner.path,
     Assets.images.perpusbanner2.path,
   ];
@@ -71,6 +71,112 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       print('Error fetching user data: $e');
+    }
+  }
+
+  showDialogReview() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Ulasan Buku'),
+          content: SizedBox(
+            height: 170,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Ulasan'),
+                TextField(
+                  decoration: const InputDecoration(hintText: 'Ulasan'),
+                  keyboardType: TextInputType.text,
+                  controller: reviewController,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text('Rating'),
+                TextField(
+                  decoration:
+                      const InputDecoration(hintText: 'Rating Maksimal 9'),
+                  maxLength: 1,
+                  keyboardType: TextInputType.number,
+                  controller: ratingController,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: sentReviewBook,
+              child: const Text('Kirim'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> sentReviewBook() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (reviewController.text.isEmpty || ratingController.text.isEmpty) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Kolom harus diisi semua')));
+    } else {
+      try {
+        QuerySnapshot<Map<String, dynamic>> snapshot =
+            await FirebaseFirestore.instance
+                .collection('peminjaman')
+                .where('id user', isEqualTo: user?.uid)
+                .where(
+                  'status peminjaman',
+                  isEqualTo: 'telah dikembalikan',
+                )
+                .get();
+        String idPeminjaman = snapshot.docs.first.id;
+
+        DocumentSnapshot peminjaman = await FirebaseFirestore.instance
+            .collection('peminjaman')
+            .doc(idPeminjaman)
+            .get();
+
+        await FirebaseFirestore.instance.collection('ulasan').add({
+          'userId': user?.uid,
+          'judul buku': peminjaman['judul buku dipinjam'],
+          'bukuId': peminjaman['id buku dipinjam'],
+          'ulasan': reviewController.text,
+          'rating': ratingController.text,
+        });
+
+        var judulBuku = peminjaman['judul buku dipinjam'];
+        var updatePeminjaman =
+            FirebaseFirestore.instance.collection('peminjaman');
+
+        updatePeminjaman
+            .where('id user', isEqualTo: user?.uid)
+            .where('judul buku dipinjam', isEqualTo: judulBuku)
+            .get()
+            .then((querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            var documentId = querySnapshot.docs[0].id;
+
+            updatePeminjaman
+                .doc(documentId)
+                .update({'status peminjaman': 'selesai di review'});
+          } else {
+            print('error');
+          }
+        }).catchError((error) {
+          print('Error updating document: $error');
+        });
+
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ulasan Berhasil Terkirim')));
+      } catch (e) {
+        print(e.toString());
+      }
     }
   }
 
@@ -244,7 +350,7 @@ class _HomePageState extends State<HomePage> {
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const AllKoleksiBook()));
+                              builder: (context) => const AllKategoriBook()));
                         },
                         child: Text(
                           'See All',
@@ -290,7 +396,7 @@ class _HomePageState extends State<HomePage> {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const AllKoleksiBook()),
+                                          const AllKategoriBook()),
                                 );
                               },
                               child: Padding(
@@ -443,7 +549,7 @@ class _HomePageState extends State<HomePage> {
                       stream: FirebaseFirestore.instance
                           .collection('buku')
                           .where('stokBuku')
-                          .limit(10)
+                          .limit(4)
                           .snapshots(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -560,170 +666,175 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+
         // Explore Page
-        Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: TextFieldSearch(
-                label: 'Search',
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    searchController.clear();
-                    setState(() {});
-                  },
-                  child: const Icon(Icons.clear),
-                ),
-                controller: searchController,
-                icon: Assets.icons.search.svg(
-                  color: AppColors.mainColor,
-                ),
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              //   child: TextFieldSearch(
+              //     label: 'Search',
+              //     suffixIcon: GestureDetector(
+              //       onTap: () {
+              //         searchController.clear();
+              //         setState(() {});
+              //       },
+              //       child: const Icon(Icons.clear),
+              //     ),
+              //     controller: searchController,
+              //     icon: Assets.icons.search.svg(
+              //       color: AppColors.mainColor,
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(
+                height: 15,
               ),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    height: 35.0,
-                    width: MediaQuery.of(context).size.width / 2.3,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.mainColor),
-                      borderRadius: BorderRadius.circular(
-                        5,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      height: 35.0,
+                      width: MediaQuery.of(context).size.width / 2.3,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.mainColor),
+                        borderRadius: BorderRadius.circular(
+                          5,
+                        ),
+                        color: AppColors.whiteColor,
                       ),
-                      color: AppColors.whiteColor,
-                    ),
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('kategori')
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        List<DropdownMenuItem> kategoriItems = [];
-                        if (!snapshot.hasData) {
-                          const CircularProgressIndicator();
-                        } else {
-                          final genres = snapshot.data?.docs.reversed.toList();
-                          kategoriItems.add(
-                            const DropdownMenuItem(
-                              value: '0',
-                              child: Text(
-                                'Kategori',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          );
-                          for (var genre in genres!) {
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('kategori')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          List<DropdownMenuItem> kategoriItems = [];
+                          if (!snapshot.hasData) {
+                            const CircularProgressIndicator();
+                          } else {
+                            final genres =
+                                snapshot.data?.docs.reversed.toList();
                             kategoriItems.add(
-                              DropdownMenuItem(
-                                value: genre['nama'],
+                              const DropdownMenuItem(
+                                value: '0',
                                 child: Text(
-                                  genre['nama'],
-                                  style: const TextStyle(
+                                  'Kategori',
+                                  style: TextStyle(
                                     fontSize: 15,
                                   ),
                                 ),
                               ),
                             );
+                            for (var genre in genres!) {
+                              kategoriItems.add(
+                                DropdownMenuItem(
+                                  value: genre['nama'],
+                                  child: Text(
+                                    genre['nama'],
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
                           }
+                          return DropdownButtonHideUnderline(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: DropdownButton(
+                                  value: selectedKategori,
+                                  items: kategoriItems,
+                                  onChanged: (rakValue) {
+                                    setState(() {
+                                      selectedKategori = rakValue;
+                                    });
+                                    print(rakValue);
+                                  }),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Column(
+                children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    height: 500,
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: selectedKategori == '0'
+                          ? FirebaseFirestore.instance
+                              .collection('buku')
+                              .where('stokBuku')
+                              .orderBy('judul', descending: false)
+                              .snapshots()
+                          : FirebaseFirestore.instance
+                              .collection('buku')
+                              .where('kategori', isEqualTo: selectedKategori)
+                              .where('stokBuku')
+                              .orderBy('judul', descending: false)
+                              .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
-                        return DropdownButtonHideUnderline(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: DropdownButton(
-                                value: selectedKategori,
-                                items: kategoriItems,
-                                onChanged: (rakValue) {
-                                  setState(() {
-                                    selectedKategori = rakValue;
-                                  });
-                                  print(rakValue);
-                                }),
+
+                        var books = snapshot.data?.docs;
+
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3, // Menampilkan 3 item per baris
                           ),
+                          itemCount: books?.length,
+                          itemBuilder: (context, index) {
+                            var book =
+                                books?[index].data() as Map<String, dynamic>;
+                            var imageUrl = book['imageUrl'] ?? '';
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => PinjamBuku(
+                                      buku: books![index],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    imageUrl,
+                                    width: 200,
+                                    height: 345,
+                                    // Memastikan gambar menutupi ukuran yang diberikan
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 10),
-            Column(
-              children: [
-                const SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  height: 400,
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: selectedKategori == '0'
-                        ? FirebaseFirestore.instance
-                            .collection('buku')
-                            .where('stokBuku')
-                            .orderBy('judul', descending: false)
-                            .snapshots()
-                        : FirebaseFirestore.instance
-                            .collection('buku')
-                            .where('kategori', isEqualTo: selectedKategori)
-                            .where('stokBuku')
-                            .orderBy('judul', descending: false)
-                            .snapshots(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-
-                      var books = snapshot.data?.docs;
-
-                      return GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3, // Menampilkan 3 item per baris
-                        ),
-                        itemCount: books?.length,
-                        itemBuilder: (context, index) {
-                          var book =
-                              books?[index].data() as Map<String, dynamic>;
-                          var imageUrl = book['imageUrl'] ?? '';
-
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PinjamBuku(
-                                    buku: books![index],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  imageUrl,
-                                  width: 200,
-                                  height: 345,
-                                  // Memastikan gambar menutupi ukuran yang diberikan
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
 
         //  BORROW PAGE
@@ -752,7 +863,8 @@ class _HomePageState extends State<HomePage> {
                     .where('id user', isEqualTo: user?.uid)
                     .where('status peminjaman', whereIn: [
                   'terkonfirmasi',
-                  'belum terkonfirmasi'
+                  'belum terkonfirmasi',
+                  'telah dikembalikan'
                 ]).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -879,7 +991,7 @@ class _HomePageState extends State<HomePage> {
                                                   );
                                                 default:
                                                   return const Text(
-                                                    'Belum Terkonfirmas',
+                                                    'Belum Terkonfirmasi',
                                                     style: TextStyle(
                                                         color: Colors.red,
                                                         fontWeight:
@@ -895,6 +1007,31 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                     actions: [
+                                      () {
+                                        switch (statusPeminjaman) {
+                                          case 'telah dikembalikan':
+                                            return Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                      showDialogReview();
+                                                    },
+                                                    child: const Text('Review'))
+                                              ],
+                                            );
+
+                                          default:
+                                            return const Text(
+                                              '',
+                                              style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.w700),
+                                            );
+                                        }
+                                      }(),
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
                                         child: const Text('Tutup'),
@@ -914,6 +1051,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+
         // ACCOUNT PAGE
         Center(
           child: SingleChildScrollView(
@@ -953,7 +1091,6 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => const UbahProfile()));
-                      print('haha');
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1057,7 +1194,10 @@ class _HomePageState extends State<HomePage> {
                     height: 15,
                   ),
                   ItemSetting(
-                    function: () {},
+                    function: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (contex) => const UlasanPeminjam()));
+                    },
                     icon: const Icon(Icons.reviews_outlined),
                     label: 'Review Buku',
                   ),
@@ -1078,7 +1218,7 @@ class _HomePageState extends State<HomePage> {
                                   borderRadius: BorderRadius.circular(100),
                                   color: AppColors.twoWhiteColor,
                                 ),
-                                child: Icon(Icons.attach_money_sharp)),
+                                child: const Icon(Icons.attach_money_sharp)),
                             const SizedBox(
                               width: 20,
                             ),
@@ -1106,7 +1246,7 @@ class _HomePageState extends State<HomePage> {
                     height: 35,
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 18.0),
+                    padding: const EdgeInsets.only(left: 18.0),
                     child: GestureDetector(
                       onTap: () {
                         FirebaseAuth.instance.signOut();

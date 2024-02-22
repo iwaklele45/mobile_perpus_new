@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 
 class PagePeminjam extends StatefulWidget {
   const PagePeminjam({Key? key}) : super(key: key);
@@ -53,7 +54,32 @@ class _PagePeminjamState extends State<PagePeminjam> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Peminjam')),
+      appBar: AppBar(
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.twoWhiteColor,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.mainColor,
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            'Peminjam',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          )),
       body: Column(
         children: [
           const SizedBox(

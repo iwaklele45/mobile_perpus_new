@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mobile_perpus/pages/admin/drawer_admin.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_perpus/pages/petugas/drawer_petugas.dart';
 
 class HomePetugas extends StatefulWidget {
@@ -40,8 +40,14 @@ class _HomePetugasState extends State<HomePetugas> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Petugas Page'),
-      ),
+          centerTitle: true,
+          title: Text(
+            'Petugas Page',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          )),
       drawer: const DrawerPetugas(),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(

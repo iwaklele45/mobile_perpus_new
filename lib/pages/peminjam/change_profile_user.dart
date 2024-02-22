@@ -15,17 +15,21 @@ class UbahProfile extends StatefulWidget {
 
 class _UbahProfileState extends State<UbahProfile> {
   final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailControler = TextEditingController();
+  String username = '';
+  String email = '';
 
   String userEmail = '';
 
   @override
   void initState() {
     super.initState();
-    fetchUserData(); // Fetch user data when the widget is initialized
+    fetchUserData();
   }
+
+  Future<void> checkUserBorrow() async {}
 
   Future<void> fetchUserData() async {
     try {
@@ -40,10 +44,12 @@ class _UbahProfileState extends State<UbahProfile> {
             .get();
 
         setState(() {
-          _fullNameController.text = userSnapshot['full name'] ?? '';
-          _addressController.text = userSnapshot['address'] ?? '';
-          _phoneController.text = userSnapshot['phone'] ?? '';
+          _fullNameController.text = userSnapshot['namaLengkap'] ?? '';
+          _usernameController.text = userSnapshot['username'] ?? '';
+          _addressController.text = userSnapshot['alamat'] ?? '';
           _emailControler.text = userSnapshot['email'] ?? '';
+          username = userSnapshot['namaLengkap'] ?? '';
+          email = userSnapshot['email'] ?? '';
         });
       }
     } catch (e) {
@@ -75,7 +81,10 @@ class _UbahProfileState extends State<UbahProfile> {
           ),
           title: Text(
             'Edit Profile',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
           )),
       body: SingleChildScrollView(
         child: Column(
@@ -90,6 +99,26 @@ class _UbahProfileState extends State<UbahProfile> {
                     size: 90,
                     color: AppColors.twoWhiteColor,
                   ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  username,
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  email,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(
+                  height: 25,
                 ),
               ],
             ),
@@ -120,15 +149,12 @@ class _UbahProfileState extends State<UbahProfile> {
                       width: 1.0,
                     ),
                   ),
-                  // borderRadius: BorderRadius.circular(
-                  //   5,
-                  // ),
                   color: Colors.white,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: TextField(
-                    controller: _fullNameController,
+                    controller: _usernameController,
                     style: GoogleFonts.poppins(),
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
@@ -172,9 +198,6 @@ class _UbahProfileState extends State<UbahProfile> {
                       width: 1.0,
                     ),
                   ),
-                  // borderRadius: BorderRadius.circular(
-                  //   5,
-                  // ),
                   color: Colors.white,
                 ),
                 child: Padding(
@@ -224,15 +247,13 @@ class _UbahProfileState extends State<UbahProfile> {
                       width: 1.0,
                     ),
                   ),
-                  // borderRadius: BorderRadius.circular(
-                  //   5,
-                  // ),
                   color: Colors.white,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: TextField(
-                    controller: _fullNameController,
+                    enabled: false,
+                    controller: _emailControler,
                     style: GoogleFonts.poppins(),
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
@@ -276,15 +297,12 @@ class _UbahProfileState extends State<UbahProfile> {
                       width: 1.0,
                     ),
                   ),
-                  // borderRadius: BorderRadius.circular(
-                  //   5,
-                  // ),
                   color: Colors.white,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: TextField(
-                    controller: _fullNameController,
+                    controller: _addressController,
                     style: GoogleFonts.poppins(),
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
@@ -299,15 +317,14 @@ class _UbahProfileState extends State<UbahProfile> {
               ),
             ),
             const SizedBox(
-              height: 10.0,
+              height: 30.0,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // _showDateDialog();
-          // print(user?.uid);
+          saveChanges();
         },
         backgroundColor: AppColors.twoWhiteColor,
         label: Text(
@@ -325,7 +342,7 @@ class _UbahProfileState extends State<UbahProfile> {
   void saveChanges() async {
     if (_fullNameController.text.isEmpty ||
         _addressController.text.isEmpty ||
-        _phoneController.text.isEmpty) {
+        _usernameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kolom harus di isi semua!')),
       );
@@ -338,20 +355,17 @@ class _UbahProfileState extends State<UbahProfile> {
               .collection('users')
               .doc(user.uid)
               .update({
-            'full name': _fullNameController.text,
-            'address': _addressController.text,
-            'phone': _phoneController.text,
+            'namaLengkap': _fullNameController.text,
+            'alamat': _addressController.text,
+            'username': _usernameController.text,
           });
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Berhasil menyimpan data!')),
           );
-
-          // Show a success message or navigate to another page if needed
         }
       } catch (e) {
         print('Error saving changes: $e');
-        // Handle the error
       }
     }
   }

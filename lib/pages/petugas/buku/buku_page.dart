@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:mobile_perpus/pages/petugas/buku/edit_buku.dart';
 import 'package:mobile_perpus/pages/petugas/buku/tambah_buku_page.dart';
 
@@ -82,8 +83,9 @@ class _PageBukuState extends State<PageBuku> {
                 title: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text(
-                    buku['judul'], overflow: TextOverflow.ellipsis,
-                    maxLines: 2, // Set the maximum number of lines
+                    buku['judul'],
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                     style: const TextStyle(fontSize: 14),
                   ),
                 ),
@@ -100,8 +102,31 @@ class _PageBukuState extends State<PageBuku> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buku'),
-      ),
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.twoWhiteColor,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.mainColor,
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            'Data Buku',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          )),
       body: Column(
         children: [
           Padding(
@@ -287,12 +312,6 @@ class _PageBukuState extends State<PageBuku> {
                     ),
                   ],
                 ),
-
-                // Text('Stok: ${buku['stokBuku']}'),
-                // Text('Kategori: ${buku['kategori']}'),
-                // Text('Penulis: ${buku['penulis']}'),
-                // Text('Penerbit: ${buku['penerbit']}'),
-                // Text('Tahun Terbit: ${buku['tahun']}'),
                 const SizedBox(
                   height: 10,
                 ),

@@ -18,7 +18,7 @@ class _AllGenreBukuPageState extends State<AllGenreBukuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Buku Genre ${widget.genreName}'),
+        title: Text('Buku Kategori ${widget.genreName}'),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -33,7 +33,7 @@ class _AllGenreBukuPageState extends State<AllGenreBukuPage> {
           } else if (snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
-                'Tidak ada buku untuk genre ini',
+                'Tidak ada buku untuk kategori ini',
                 style: TextStyle(fontSize: 15),
               ),
             );

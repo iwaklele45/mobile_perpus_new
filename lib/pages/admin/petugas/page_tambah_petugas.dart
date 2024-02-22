@@ -125,15 +125,31 @@ class _PageTambahPetugasState extends State<PageTambahPetugas> {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
-          title: Text(
-            'Add Staf',
-            style: GoogleFonts.inter(
-              color: AppColors.mainColor,
-              fontWeight: FontWeight.w600,
-              fontSize: 22,
+            centerTitle: true,
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: AppColors.twoWhiteColor,
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: AppColors.mainColor,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+            title: Text(
+              'Tambah Petugas',
+              style: GoogleFonts.inter(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w600,
+              ),
+            )),
         body: SingleChildScrollView(
           child: SafeArea(
             child: Padding(

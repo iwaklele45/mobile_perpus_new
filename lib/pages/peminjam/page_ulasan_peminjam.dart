@@ -1,92 +1,26 @@
-import 'dart:async';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/assets/assets.gen.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
+import 'package:mobile_perpus/core/constrant/search_field.dart';
 import 'package:mobile_perpus/pages/peminjam/user_book_pinjam.dart';
 
-class PageFavBook extends StatefulWidget {
-  const PageFavBook({Key? key}) : super(key: key);
+class UlasanPeminjam extends StatefulWidget {
+  const UlasanPeminjam({Key? key}) : super(key: key);
 
   @override
-  State<PageFavBook> createState() => _PageFavBookState();
+  State<UlasanPeminjam> createState() => _UlasanPeminjamState();
 }
 
-class _PageFavBookState extends State<PageFavBook> {
-  late List<String> judulBukuFav = [];
+class _UlasanPeminjamState extends State<UlasanPeminjam> {
   late List<DocumentSnapshot> bookList;
   final TextEditingController _searchController = TextEditingController();
-  late String idBookFav = '';
-
-  final StreamController<QuerySnapshot> _fetchUserFavBookStreamController =
-      StreamController<QuerySnapshot>();
-
-  Stream<QuerySnapshot> _fetchUserFavBookStream() {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      Future.delayed(Duration(seconds: 0), () async {
-        var querySnapshot = await FirebaseFirestore.instance
-            .collection('buku')
-            .where('judul', whereIn: judulBukuFav)
-            .orderBy('judul', descending: false)
-            .get();
-
-        _fetchUserFavBookStreamController.add(querySnapshot);
-      });
-
-      return _fetchUserFavBookStreamController.stream;
-    } else {
-      _fetchUserFavBookStreamController.close();
-      return Stream.empty();
-    }
-  }
-
-  Future<void> _fetchUserFavBook() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    try {
-      if (user != null) {
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('koleksiBuku')
-            .where('idUser', isEqualTo: user.uid)
-            .get();
-
-        if (querySnapshot.docs.isNotEmpty) {
-          judulBukuFav = querySnapshot.docs
-              .map((document) => document['judulBukuKoleksi'].toString())
-              .toList();
-
-          print('Favorite Book IDs: $judulBukuFav');
-        } else {
-          print('No favorite book found for the user with ID: ${user.uid}');
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tidak ada koleksi buku')),
-          );
-
-          Navigator.pop(context);
-        }
-      } else {
-        print('User is not authenticated.');
-      }
-    } catch (e) {
-      print('Error fetching user\'s favorite book: $e');
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _initData();
-  }
-
-  Future<void> _initData() async {
-    await _fetchUserFavBook();
-
-    _fetchUserFavBookStreamController.addStream(_fetchUserFavBookStream());
   }
 
   void _onSearchChanged() {
@@ -97,7 +31,6 @@ class _PageFavBookState extends State<PageFavBook> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          centerTitle: true,
           leading: GestureDetector(
             onTap: () {
               Navigator.pop(context);
@@ -115,34 +48,44 @@ class _PageFavBookState extends State<PageFavBook> {
               ),
             ),
           ),
+          centerTitle: true,
           title: Text(
-            'Koleksi',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+            'Ulasan Buku',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
           )),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            TextFieldSearch(
+              label: 'Cari Buku',
+              controller: _searchController,
+              icon: Assets.icons.search.svg(),
+              suffixIcon: GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    setState(() {});
+                  },
+                  child: Icon(Icons.clear)),
+            ),
+            const SizedBox(height: 10),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: _fetchUserFavBookStream(),
+                stream: FirebaseFirestore.instance
+                    .collection('buku')
+                    .orderBy('judul', descending: false)
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'Tidak ada buku',
-                        style: TextStyle(
-                          fontSize: 15,
-                        ),
-                      ),
-                    );
                   } else {
                     bookList = snapshot.data!.docs;
+
                     List<DocumentSnapshot> filteredList =
                         bookList.where((document) {
                       var bookData = document.data() as Map<String, dynamic>;
@@ -170,7 +113,7 @@ class _PageFavBookState extends State<PageFavBook> {
 
                           return GestureDetector(
                             onTap: () {
-                              Navigator.of(context).pushReplacement(
+                              Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => PinjamBuku(
                                     buku: bookList[index],
@@ -193,21 +136,12 @@ class _PageFavBookState extends State<PageFavBook> {
                                   ),
                                   Expanded(
                                     child: ListTile(
-                                      title: Text(
-                                        titleBook,
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w500,
+                                      title: Text(titleBook),
+                                      subtitle: Text(
+                                        'Penulis: $author\nTahun : $year',
+                                        style: TextStyle(
+                                          fontSize: 15,
                                         ),
-                                      ),
-                                      subtitle: Row(
-                                        children: [
-                                          Text(
-                                            'Penulis: $author\nTahun : $year',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                        ],
                                       ),
                                     ),
                                   ),

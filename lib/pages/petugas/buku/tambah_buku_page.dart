@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:text_area/text_area.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -118,8 +119,31 @@ class _TambahBukuState extends State<TambahBuku> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Buku'),
-      ),
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.twoWhiteColor,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.mainColor,
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            'Tambah Buku',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          )),
       body: SingleChildScrollView(
         child: Column(
           children: [

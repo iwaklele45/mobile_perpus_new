@@ -7,7 +7,6 @@ import 'package:mobile_perpus/pages/petugas/kategori/kategori_page.dart';
 import 'package:mobile_perpus/pages/petugas/peminjaman/admin_peminjaman.dart';
 import 'package:mobile_perpus/pages/petugas/peminjam/peminjam_page.dart';
 import 'package:mobile_perpus/pages/petugas/pengembalian/admin_pengembalian.dart';
-import 'package:mobile_perpus/pages/admin/petugas/petugas_page.dart';
 
 class DrawerPetugas extends StatefulWidget {
   const DrawerPetugas({super.key});

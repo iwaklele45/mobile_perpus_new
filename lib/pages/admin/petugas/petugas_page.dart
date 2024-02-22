@@ -55,7 +55,32 @@ class _PagePetugasState extends State<PagePetugas> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Petugas')),
+      appBar: AppBar(
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.twoWhiteColor,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.mainColor,
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            'Petugas',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          )),
       body: Column(
         children: [
           const SizedBox(

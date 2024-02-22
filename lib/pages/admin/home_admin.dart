@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_perpus/pages/admin/drawer_admin.dart';
 
 class AdminPage extends StatefulWidget {
@@ -39,8 +40,14 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Page'),
-      ),
+          centerTitle: true,
+          title: Text(
+            'Admin Page',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          )),
       drawer: const DrawerAdmin(),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(

@@ -7,24 +7,52 @@ import 'package:mobile_perpus/core/constrant/search_field.dart';
 import 'package:mobile_perpus/pages/peminjam/all_book_genre.dart';
 import 'package:mobile_perpus/pages/peminjam/page_semua_koleksi.dart';
 
-class AllKoleksiBook extends StatefulWidget {
-  const AllKoleksiBook({super.key});
+class AllKategoriBook extends StatefulWidget {
+  const AllKategoriBook({super.key});
 
   @override
-  State<AllKoleksiBook> createState() => _AllKoleksiBookState();
+  State<AllKategoriBook> createState() => _AllKategoriBookState();
 }
 
-class _AllKoleksiBookState extends State<AllKoleksiBook> {
+class _AllKategoriBookState extends State<AllKategoriBook> {
   TextEditingController searchController = TextEditingController();
   int jumlahFavBookUser = 0;
   String selectedKategori = '0';
   late List<DocumentSnapshot> genreList;
+
+  @override
+  void initState() {
+    super.initState();
+    searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: AppColors.twoWhiteColor,
+                  borderRadius: BorderRadius.circular(10.0)),
+              child: Icon(
+                Icons.arrow_back,
+                color: AppColors.mainColor,
+              ),
+            ),
+          ),
+        ),
         title: Text(
-          'MoPer',
+          'Kategori',
           style: GoogleFonts.inter(
             fontSize: 20.0,
             fontWeight: FontWeight.w600,

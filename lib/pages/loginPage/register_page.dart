@@ -56,23 +56,22 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  Future registerUser(
-    String fullName,
-    String address,
-    int phone,
-    String uidUser,
-  ) async {
-    await FirebaseFirestore.instance.collection('users').add({
-      'alamat': fullName,
-      'denda': address,
-      'email': _emailControler.text,
-      'levelUser': uidUser,
-      'levelUser': 'Peminjam',
-      'namaLengkap': '',
-      'username': '',
-      'statusEmail': false,
-    });
-  }
+  // Future registerUser(
+  //   String fullName,
+  //   String address,
+  //   int phone,
+  //   String uidUser,
+  // ) async {
+  //   await FirebaseFirestore.instance.collection('users').add({
+  //     'alamat': fullName,
+  //     'denda': address,
+  //     'email': _emailControler.text,
+  //     'levelUser': 'peminjam',
+  //     'namaLengkap': '',
+  //     'username': '',
+  //     'statusEmail': false,
+  //   });
+  // }
 
   Future signUp() async {
     setState(() {

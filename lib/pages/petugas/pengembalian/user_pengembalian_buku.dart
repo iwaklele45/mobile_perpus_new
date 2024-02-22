@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 
 class UserPengembalianBuku extends StatefulWidget {
   final String userId;
@@ -17,7 +19,32 @@ class _UserPengembalianBukuState extends State<UserPengembalianBuku> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Data Buku Dipinjam')),
+      appBar: AppBar(
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.twoWhiteColor,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.mainColor,
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            'Data Buku Dipinjam',
+            style: GoogleFonts.inter(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          )),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('peminjaman')
