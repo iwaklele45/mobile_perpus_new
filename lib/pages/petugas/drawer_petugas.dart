@@ -7,6 +7,7 @@ import 'package:mobile_perpus/pages/petugas/kategori/kategori_page.dart';
 import 'package:mobile_perpus/pages/petugas/peminjaman/admin_peminjaman.dart';
 import 'package:mobile_perpus/pages/petugas/peminjam/peminjam_page.dart';
 import 'package:mobile_perpus/pages/petugas/pengembalian/admin_pengembalian.dart';
+import 'package:mobile_perpus/pages/petugas/ulasan/ulasan_buku.dart';
 
 class DrawerPetugas extends StatefulWidget {
   const DrawerPetugas({super.key});
@@ -51,6 +52,16 @@ class _DrawerPetugasState extends State<DrawerPetugas> {
             child: const ListTile(
               leading: Icon(Icons.person),
               title: Text('Peminjam'),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const UlasanBuku()));
+            },
+            child: const ListTile(
+              leading: Icon(Icons.reviews_outlined),
+              title: Text('Ulasan Buku'),
             ),
           ),
           GestureDetector(

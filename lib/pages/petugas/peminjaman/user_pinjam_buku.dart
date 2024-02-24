@@ -127,6 +127,10 @@ class _UserPinjamBukuState extends State<UserPinjamBuku> {
     peminjamanRef
         .where('id user', isEqualTo: widget.userId)
         .where('judul buku dipinjam', isEqualTo: judulBuku)
+        .where(
+          'status peminjaman',
+          isEqualTo: 'belum terkonfirmasi',
+        )
         .get()
         .then((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {

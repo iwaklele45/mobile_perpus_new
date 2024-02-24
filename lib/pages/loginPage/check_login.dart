@@ -42,7 +42,7 @@ class CheckLogin extends StatelessWidget {
                     final String userLevel = userData['levelUser'];
 
                     switch (userLevel) {
-                      case 'Pelanggan':
+                      case 'Peminjam':
                         return const HomePage();
                       case 'Admin':
                         return const AdminPage();

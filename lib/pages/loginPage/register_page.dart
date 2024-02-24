@@ -97,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
           'alamat': _addressController.text,
           'denda': 0,
           'email': _emailControler.text,
-          'levelUser': 'Pelanggan',
+          'levelUser': 'Peminjam',
           'namaLengkap': _fullNameController.text,
           'username': _usernameController.text,
           'statusEmail': false,

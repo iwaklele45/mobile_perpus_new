@@ -166,30 +166,44 @@ class _HomePageState extends State<HomePage> {
           const SnackBar(
               content: Text('Anda sudah memberikan ulasan untuk buku ini')),
         );
+        final CollectionReference<Map<String, dynamic>> updatePeminjaman =
+            FirebaseFirestore.instance.collection('peminjaman');
+
+        await updatePeminjaman
+            .doc(idPeminjaman)
+            .update({'status peminjaman': 'selesai di review'});
+
+        reviewController.clear();
+        ratingController.clear();
         return;
       }
 
       // Proceed with adding review if user hasn't reviewed the book before
-      await FirebaseFirestore.instance.collection('ulasan').add({
-        'userId': user?.uid,
-        'judul buku': judulBuku,
-        'bukuId': peminjaman['id buku dipinjam'],
-        'ulasan': reviewController.text,
-        'rating': ratingController.text,
+      Future.delayed(Duration(seconds: 2), () async {
+        await FirebaseFirestore.instance.collection('ulasan').add({
+          'userId': user?.uid,
+          'judul buku': judulBuku,
+          'bukuId': peminjaman['id buku dipinjam'],
+          'ulasan': reviewController.text,
+          'userName': fullName,
+          'rating': ratingController.text,
+        });
+
+        // Update status of borrowing to 'selesai di review'
+        final CollectionReference<Map<String, dynamic>> updatePeminjaman =
+            FirebaseFirestore.instance.collection('peminjaman');
+
+        await updatePeminjaman
+            .doc(idPeminjaman)
+            .update({'status peminjaman': 'selesai di review'});
+
+        reviewController.clear();
+        ratingController.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ulasan Berhasil Terkirim')),
+        );
+        Navigator.pop(context);
       });
-
-      // Update status of borrowing to 'selesai di review'
-      final CollectionReference<Map<String, dynamic>> updatePeminjaman =
-          FirebaseFirestore.instance.collection('peminjaman');
-
-      await updatePeminjaman
-          .doc(idPeminjaman)
-          .update({'status peminjaman': 'selesai di review'});
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ulasan Berhasil Terkirim')),
-      );
-      Navigator.pop(context);
     } catch (e) {
       print('Error submitting review: $e');
       ScaffoldMessenger.of(context).showSnackBar(

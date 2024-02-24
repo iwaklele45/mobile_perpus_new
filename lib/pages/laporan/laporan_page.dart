@@ -1,11 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:mobile_perpus/pages/laporan/cetak_laporan_buku.dart';
 import 'package:mobile_perpus/pages/laporan/cetak_laporan_denda.dart';
 import 'package:mobile_perpus/pages/laporan/cetak_laporan_peminjam.dart';
 import 'package:mobile_perpus/pages/laporan/cetak_laporan_peminjaman.dart';
 import 'package:mobile_perpus/pages/laporan/cetak_laporan_pengembalian.dart';
+import 'package:mobile_perpus/pages/loginPage/login_page.dart';
 // import 'package:mobile_perpus/pages/user/login_page.dart';
 
 class LaporanPage extends StatefulWidget {
@@ -20,17 +24,43 @@ class _LaporanPageState extends State<LaporanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Laporan Perpus'),
+        centerTitle: true,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: AppColors.twoWhiteColor,
+                  borderRadius: BorderRadius.circular(10.0)),
+              child: Icon(
+                Icons.arrow_back,
+                color: AppColors.mainColor,
+              ),
+            ),
+          ),
+        ),
+        title: Text(
+          'Laporan Perpus',
+          style: GoogleFonts.inter(
+            fontSize: 20.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: GestureDetector(
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-              },
-              child: const Icon(
+          GestureDetector(
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const LoginPage()));
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 10.0),
+              child: Icon(
                 Icons.logout,
-                size: 30,
+                size: 30.0,
               ),
             ),
           )

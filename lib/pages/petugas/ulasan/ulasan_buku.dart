@@ -5,16 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_perpus/core/assets/assets.gen.dart';
 import 'package:mobile_perpus/core/constrant/colors.dart';
 import 'package:mobile_perpus/core/constrant/search_field.dart';
+import 'package:mobile_perpus/pages/peminjam/user_book_pinjam.dart';
 
-class UlasanPeminjam extends StatefulWidget {
-  const UlasanPeminjam({Key? key}) : super(key: key);
+class UlasanBuku extends StatefulWidget {
+  const UlasanBuku({Key? key}) : super(key: key);
 
   @override
-  State<UlasanPeminjam> createState() => _UlasanPeminjamState();
+  State<UlasanBuku> createState() => _UlasanBukuState();
 }
 
-class _UlasanPeminjamState extends State<UlasanPeminjam> {
+class _UlasanBukuState extends State<UlasanBuku> {
   late List<DocumentSnapshot> reviewList;
+  late List<DocumentSnapshot> userList;
   final TextEditingController _searchController = TextEditingController();
   User? user = FirebaseAuth.instance.currentUser;
 
@@ -75,10 +77,8 @@ class _UlasanPeminjamState extends State<UlasanPeminjam> {
             const SizedBox(height: 10),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('ulasan')
-                    .where('userId', isEqualTo: user?.uid)
-                    .snapshots(),
+                stream:
+                    FirebaseFirestore.instance.collection('ulasan').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -92,9 +92,7 @@ class _UlasanPeminjamState extends State<UlasanPeminjam> {
                       var reviewData = document.data() as Map<String, dynamic>;
                       var titleBook =
                           reviewData['judul buku'].toString().toLowerCase();
-
                       var searchQuery = _searchController.text.toLowerCase();
-
                       return titleBook.contains(searchQuery);
                     }).toList();
 
@@ -109,13 +107,15 @@ class _UlasanPeminjamState extends State<UlasanPeminjam> {
                               reviewList[index].data() as Map<String, dynamic>;
                           var titleBook = reviewData['judul buku'];
                           var review = reviewData['ulasan'];
+                          var name = reviewData['userName'];
                           var rating = reviewData['rating'];
 
                           return Row(
                             children: [
                               Expanded(
                                 child: ListTile(
-                                  title: Text('${index + 1}. $titleBook'),
+                                  title: Text(
+                                      '${index + 1}. $titleBook\n   $name'),
                                   subtitle: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 15.0),
